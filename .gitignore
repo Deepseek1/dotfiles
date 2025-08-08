@@ -8,3 +8,6 @@
 # host-specific overrides
 .zshrc.local
 .gitconfig-work
+oh-my-zsh/.oh-my-zsh/*
+!oh-my-zsh/.oh-my-zsh/custom/
+!oh-my-zsh/.oh-my-zsh/custom/**
