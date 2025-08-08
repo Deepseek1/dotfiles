@@ -29,6 +29,7 @@ Each subfolder represents a “package” for Stow, mirroring the layout inside 
 git clone https://github.com/Deepseek1/dotfiles.git ~/dotfiles
 cd ~/dotfiles && ./install.sh
 ```
+````
 
 This will:
 
