@@ -1,0 +1,10 @@
+# local junk
+.zsh_history
+.zcompdump*
+.cache/
+*.swp
+*.swo
+
+# host-specific overrides
+.zshrc.local
+.gitconfig-work
