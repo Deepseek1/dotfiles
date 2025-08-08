@@ -1,16 +1,13 @@
-export ZSH=/usr/local/share/oh-my-zsh
+export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="robbyrussell"
 
 plugins=(
   git
+  zsh-completions
+  history-substring-search
   zsh-autosuggestions
   zsh-syntax-highlighting
-  zsh-history-substring-search
-  zsh-completions
-  fzf
-  sudo
 )
-
 
 source "$ZSH/oh-my-zsh.sh"
 export EDITOR=nvim
