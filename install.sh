@@ -47,6 +47,24 @@ if [ -d "$REPO_CUSTOM" ]; then
   ln -s "$REPO_CUSTOM" "$OMZ_DIR/custom"
 fi
 
+# Popular 3rd-party plugins
+plugdir="$OMZ_DIR/custom/plugins"
+mkdir -p "$plugdir"
+
+ensure_plugin() {
+  local repo="$1"; local name="${repo#*/}"
+  if [ -d "$plugdir/$name/.git" ]; then
+    git -C "$plugdir/$name" pull --ff-only || true
+  else
+    git clone --depth=1 "https://github.com/$repo" "$plugdir/$name"
+  fi
+}
+
+ensure_plugin zsh-users/zsh-autosuggestions
+ensure_plugin zsh-users/zsh-syntax-highlighting
+ensure_plugin zsh-users/zsh-completions
+
+
 # --- STOW DOTFILES ---
 echo "[*] Symlinking dotfiles into \$HOME"
 STOW_FLAGS=(--target="$HOME" --restow)
