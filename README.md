@@ -1,5 +1,3 @@
-Yeah, the code fences inside a code fence nuked the formatting — GitHub would render that like a drunk markdown parser at 3 AM.
-Let’s untangle it so it’s clean, copy-paste-ready, and GitHub-pretty:
 
 ```markdown
 # Dotfiles – Stow + GitHub Managed
