@@ -65,3 +65,4 @@ zle -N sudo-command-line
 sudo-command-line() { zle beginning-of-line; LBUFFER="sudo $LBUFFER"; }
 bindkey '^[s' sudo-command-line
 
+alias fd=fdfind

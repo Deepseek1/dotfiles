@@ -2,6 +2,10 @@
 --   Neovim Starter Config
 -- ===========================
 
+-- --- Load Lazy Lua --- --
+require("config.lazy")
+
+
 -- --- Basic Settings ---
 vim.opt.number = true           -- Show absolute line number
 vim.opt.syntax = "on"            -- Syntax highlighting
@@ -12,7 +16,7 @@ vim.opt.smartindent = true       -- Auto-indent intelligently
 vim.opt.mouse = "a"              -- Enable mouse support (handy if new)
 
 -- --- Leader Key ---
-vim.g.mapleader = ','            -- Easier leader key
+-- --- SET IN lazy.lua --- -- vim.g.mapleader = ','            -- Easier leader key
 
 -- --- Copy to Clipboard ---
 vim.opt.clipboard = "unnamedplus"
@@ -66,3 +70,17 @@ vim.keymap.set('n', 'N', 'Nzz')     -- previous search result
 vim.keymap.set('n', 'G', 'Gzz')     -- end of file
 vim.keymap.set('n', '{', '{zz')     -- paragraph back
 vim.keymap.set('n', '}', '}zz')     -- paragraph forward
+
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not (vim.uv or vim.loop).fs_stat(lazypath) then
+  vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=stable",
+    "https://github.com/folke/lazy.nvim.git", lazypath })
+end
+vim.opt.rtp:prepend(lazypath)
+
+vim.g.mapleader = " "
+vim.g.maplocalleader = "\\"
+
+require("lazy").setup({
+  spec = { { import = "plugins" } },
+})
