@@ -9,6 +9,9 @@ plugins=(
   zsh-syntax-highlighting
 )
 
+# RM SAFELY SCRIPT LOCATION ##
+[ -f ~/.rm-safety.sh ] && source ~/.rm-safety.sh
+
 source "$ZSH/oh-my-zsh.sh"
 export EDITOR=nvim
 alias ll='ls -lah --color=auto'
