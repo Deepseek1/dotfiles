@@ -17,6 +17,23 @@ vim.opt.ignorecase = true       -- Case-insensitive search
 vim.opt.smartcase = true        -- ...unless uppercase is used
 vim.opt.cursorline = true       -- Highlight current line
 
+-- Auto-copy visual selections to clipboard
+vim.keymap.set('v', 'y', '"+y', { desc = 'Yank to system clipboard' })
+vim.keymap.set('v', 'Y', '"+Y', { desc = 'Yank line to system clipboard' })
+
+-- OSC 52 clipboard support for SSH sessions
+vim.g.clipboard = {
+  name = 'OSC 52',
+  copy = {
+    ['+'] = require('vim.ui.clipboard.osc52').copy('+'),
+    ['*'] = require('vim.ui.clipboard.osc52').copy('*'),
+  },
+  paste = {
+    ['+'] = require('vim.ui.clipboard.osc52').paste('+'),
+    ['*'] = require('vim.ui.clipboard.osc52').paste('*'),
+  },
+}
+
 -- --- Visual Styling ---
 vim.api.nvim_set_hl(0, "CursorLine", { bg = "#2A2A2A" }) -- Subtle background highlight
 vim.api.nvim_set_hl(0, "LineNr", { fg = "#FFA500" })   -- Normal line numbers
