@@ -16,6 +16,7 @@ alias la='ls -A'
 alias dotpush='cd ~/dotfiles && git add -u && git commit -m "Update configs" && git push && cd -'
 eval "$(starship init zsh)"
 export LS_COLORS="$LS_COLORS:ow=01;36:tw=01;34:"
+export TERM=xterm-256color
 
 # Warn if dotfiles repo has uncommitted or unpushed changes
 function check_dotfiles_changes() {
