@@ -5,13 +5,11 @@ set -Eeuo pipefail
 REPO="${REPO:-https://github.com/Deepseek1/dotfiles.git}"
 DEST="${DEST:-$HOME/dotfiles}"
 
-# Flags you can override
 INSTALL_STARSHIP="${INSTALL_STARSHIP:-1}"
 INSTALL_OMZ="${INSTALL_OMZ:-1}"
 SET_DEFAULT_SHELL="${SET_DEFAULT_SHELL:-1}"
-ADOPT="${ADOPT:-0}"
-FULL_INSTALL="${FULL_INSTALL:-1}"  # New flag for full vs minimal install
-
+ADOPT="${ADOPT:-1}"              # Changed default to 1
+FULL_INSTALL="${FULL_INSTALL:-1}"  # Already defaulted to 1
 say() { printf '[bootstrap] %s\n' "$*"; }
 
 # 0) Pre-auth sudo once (if present)
