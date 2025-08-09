@@ -12,7 +12,6 @@ vim.opt.shiftwidth = 4          -- Auto-indent size
 vim.opt.expandtab = true        -- Convert tabs to spaces
 vim.opt.smartindent = true      -- Auto-indent intelligently
 vim.opt.mouse = "a"             -- Enable mouse support
-vim.opt.clipboard = "unnamedplus" -- Use system clipboard
 vim.opt.ignorecase = true       -- Case-insensitive search
 vim.opt.smartcase = true        -- ...unless uppercase is used
 vim.opt.cursorline = true       -- Highlight current line
@@ -25,18 +24,24 @@ vim.keymap.set('v', 'Y', '"+Y', { desc = 'Yank line to system clipboard' })
 vim.keymap.set('n', '<leader>w', ':w<CR>', { desc = 'Save file' })
 vim.keymap.set('n', '<leader>q', ':q<CR>', { desc = 'Quit' })
 
--- OSC 52 clipboard support for SSH sessions
-vim.g.clipboard = {
-  name = 'OSC 52',
-  copy = {
-    ['+'] = require('vim.ui.clipboard.osc52').copy('+'),
-    ['*'] = require('vim.ui.clipboard.osc52').copy('*'),
-  },
-  paste = {
-    ['+'] = require('vim.ui.clipboard.osc52').paste('+'),
-    ['*'] = require('vim.ui.clipboard.osc52').paste('*'),
-  },
-}
+-- Use OSC 52 if no local clipboard provider is available
+local os_name = vim.loop.os_uname().sysname
+
+if os_name == "Darwin" then
+  vim.opt.clipboard = "unnamedplus"
+elseif os_name == "Linux" then
+  vim.g.clipboard = {
+    name = 'OSC 52',
+    copy = {
+      ['+'] = require('vim.ui.clipboard.osc52').copy('+'),
+      ['*'] = require('vim.ui.clipboard.osc52').copy('*'),
+    },
+    paste = {
+      ['+'] = require('vim.ui.clipboard.osc52').paste('+'),
+      ['*'] = require('vim.ui.clipboard.osc52').paste('*'),
+    },
+  }
+end
 
 -- --- Visual Styling ---
 vim.api.nvim_set_hl(0, "CursorLine", { bg = "#2A2A2A" }) -- Subtle background highlight
