@@ -21,7 +21,11 @@ vim.opt.cursorline = true       -- Highlight current line
 vim.keymap.set('v', 'y', '"+y', { desc = 'Yank to system clipboard' })
 vim.keymap.set('v', 'Y', '"+Y', { desc = 'Yank line to system clipboard' })
 
--- OSC 52 clipboard support for SSH sessions
+-- File operations
+vim.keymap.set('n', '<leader>w', ':w<CR>', { desc = 'Save file' })
+vim.keymap.set('n', '<leader>q', ':q<CR>', { desc = 'Quit' })i
+
+-- Remove the conditional logic and just set OSC 52 directly
 vim.g.clipboard = {
   name = 'OSC 52',
   copy = {
