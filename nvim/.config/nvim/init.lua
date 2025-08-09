@@ -54,7 +54,7 @@ vim.keymap.set({'n', 'v'}, 'd', '"_d', { desc = 'Delete without yanking' })
 vim.keymap.set('n', 'dd', '"_dd', { desc = 'Delete line without yanking' })
 
 -- Make 'D' cut (delete + copy into register, old Vim behavior)
-vim.keymap.set({'n', 'v'}, 'D', 'd', { desc = 'Cut (delete + yank)' })
+-- vim.keymap.set({'n', 'v'}, 'D', 'd', { desc = 'Cut (delete + yank)' })
 
 -- 'x' deletes character silently (black hole register)
 vim.keymap.set('n', 'x', '"_x', { desc = 'Delete char without yanking' })
