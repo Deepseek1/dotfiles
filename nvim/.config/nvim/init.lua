@@ -44,7 +44,7 @@ elseif os_name == "Linux" then
 end
 
 -- --- Visual Styling ---
-vim.api.nvim_set_hl(0, "CursorLine", { bg = "#2A2A2A" }) -- Subtle background highlight
+vim.api.nvim_set_hl(0, "CursorLine", { bg = "#404040" }) -- Much more visible
 vim.api.nvim_set_hl(0, "LineNr", { fg = "#FFA500" })   -- Normal line numbers
 vim.api.nvim_set_hl(0, "CursorLineNr", { fg = "#FFB52E", bold = true }) -- Current line number
 
@@ -66,6 +66,7 @@ vim.keymap.set('i', '<A-<>', '|')
 vim.keymap.set({'n', 'v'}, '<leader>d', '"_d', { desc = 'Delete without yanking' })
 vim.keymap.set('n', '<leader>dd', '"_dd', { desc = 'Delete line without yanking' })
 vim.keymap.set({'n', 'v'}, '<leader>D', 'd', { desc = 'Cut (delete + yank)' })
+vim.keymap.set('n', '<leader>r', 'V"+p', { desc = 'Replace line with clipboard' })
 
 -- Character operations
 vim.keymap.set('n', 'x', '"_x', { desc = 'Delete char without yanking' })
@@ -80,3 +81,16 @@ vim.keymap.set('n', 'N', 'Nzz')     -- previous search result
 vim.keymap.set('n', 'G', 'Gzz')     -- end of file
 vim.keymap.set('n', '{', '{zz')     -- paragraph back
 vim.keymap.set('n', '}', '}zz')     -- paragraph forward
+-- More auto-centering
+vim.keymap.set('n', '<C-d>', '<C-d>zz', { desc = 'Half page down + center' })
+vim.keymap.set('n', '<C-u>', '<C-u>zz', { desc = 'Half page up + center' })
+vim.keymap.set('n', '<C-f>', '<C-f>zz', { desc = 'Full page down + center' })
+vim.keymap.set('n', '<C-b>', '<C-b>zz', { desc = 'Full page up + center' })
+
+-- Center when jumping to marks
+vim.keymap.set('n', "'", "'zz", { desc = 'Jump to mark + center' })
+vim.keymap.set('n', '`', '`zz', { desc = 'Jump to mark exact + center' })
+
+-- Center on line joins
+vim.keymap.set('n', 'J', 'Jzz', { desc = 'Join lines + center' })
+
