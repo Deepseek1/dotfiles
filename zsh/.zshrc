@@ -71,3 +71,4 @@ bindkey '^[s' sudo-command-line
 
 alias fd=fdfind
 
+umask 002
