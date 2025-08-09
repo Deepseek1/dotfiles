@@ -71,31 +71,27 @@ fi
 
 # 2) Install latest Neovim (AppImage extracted)
 install_neovim() {
-  # Check if nvim exists and if it's recent enough
-  local need_nvim=0
+  # Only install if nvim doesn't exist
   if ! command -v nvim >/dev/null 2>&1; then
-    need_nvim=1
-  else
-    # Check version - we want at least 0.9
-    local nvim_version=$(nvim --version | head -1 | grep -oE '[0-9]+\.[0-9]+' | head -1)
-    if [[ "${nvim_version}" < "0.9" ]]; then
-      say "Neovim ${nvim_version} is too old, upgrading..."
-      need_nvim=1
-    fi
-  fi
-  
-  if [ "$need_nvim" = 1 ]; then
-    say "Installing latest Neovim..."
+    say "Installing latest Neovim (nightly)..."
     cd /tmp
-    wget -q https://github.com/neovim/neovim/releases/download/stable/nvim-linux64.tar.gz
-    tar xzf nvim-linux64.tar.gz
+    wget -q https://github.com/neovim/neovim/releases/download/nightly/nvim-linux-x86_64.appimage
+    chmod u+x nvim-linux-x86_64.appimage
+    
+    # Extract the AppImage (works even without FUSE)
+    ./nvim-linux-x86_64.appimage --appimage-extract >/dev/null 2>&1
+    
+    # Move to /opt and create symlink
     sudo rm -rf /opt/nvim
-    sudo mv nvim-linux64 /opt/nvim
-    sudo ln -sf /opt/nvim/bin/nvim /usr/local/bin/nvim
-    rm nvim-linux64.tar.gz
+    sudo mv squashfs-root /opt/nvim
+    sudo ln -sf /opt/nvim/usr/bin/nvim /usr/local/bin/nvim
+    
+    # Cleanup
+    rm nvim-linux-x86_64.appimage
+    
     say "Neovim installed: $(nvim --version | head -1)"
   else
-    say "Neovim is already up to date: $(nvim --version | head -1)"
+    say "Neovim already installed: $(nvim --version | head -1)"
   fi
 }
 
