@@ -24,23 +24,23 @@ install_pkgs() {
   local PKGS_DEV=""
   
   if [ "$FULL_INSTALL" = 1 ]; then
-    # Note: Installing neovim from package manager
+    # Note: We don't install neovim from package manager - we'll get it from GitHub
     if   command -v apt    >/dev/null 2>&1; then 
-      PKGS_DEV="neovim tmux tree gh openssh-client less file ripgrep fd-find build-essential"
+      PKGS_DEV="tmux tree gh openssh-client less file ripgrep fd-find build-essential"
       sudo apt update && sudo apt install -y $PKGS_CORE $PKGS_DEV
       # Fix fd name on Debian/Ubuntu
       [ -f /usr/bin/fdfind ] && sudo ln -sf /usr/bin/fdfind /usr/local/bin/fd
       
     elif command -v dnf    >/dev/null 2>&1; then 
-      PKGS_DEV="neovim tmux tree gh openssh-clients less file ripgrep fd-find gcc make"
+      PKGS_DEV="tmux tree gh openssh-clients less file ripgrep fd-find gcc make"
       sudo dnf install -y $PKGS_CORE $PKGS_DEV
       
     elif command -v pacman >/dev/null 2>&1; then 
-      PKGS_DEV="neovim tmux tree github-cli openssh less file ripgrep fd base-devel"
+      PKGS_DEV="tmux tree github-cli openssh less file ripgrep fd base-devel"
       sudo pacman -Sy --needed $PKGS_CORE $PKGS_DEV
       
     elif command -v zypper >/dev/null 2>&1; then 
-      PKGS_DEV="neovim tmux tree gh openssh less file ripgrep fd gcc make"
+      PKGS_DEV="tmux tree gh openssh less file ripgrep fd gcc make"
       sudo zypper --non-interactive in $PKGS_CORE $PKGS_DEV
     else
       say "No supported package manager. Install packages manually."
@@ -59,7 +59,7 @@ install_pkgs() {
 # Check if we need to install packages
 need=0
 if [ "$FULL_INSTALL" = 1 ]; then
-  for c in git stow zsh curl wget tmux nvim; do 
+  for c in git stow zsh curl wget tmux; do 
     command -v "$c" >/dev/null 2>&1 || need=1
   done
 else
@@ -69,7 +69,36 @@ else
 fi
 [ "$need" = 1 ] && install_pkgs
 
-# Neovim is installed via package manager in install_pkgs()
+# 2) Install latest stable Neovim from GitHub
+install_neovim() {
+  if ! command -v nvim >/dev/null 2>&1; then
+    say "Installing latest stable Neovim from GitHub..."
+    cd /tmp
+    
+    # Get the latest stable AppImage (v0.11.3 as of now)
+    wget -q https://github.com/neovim/neovim/releases/download/v0.11.3/nvim-linux-x86_64.appimage
+    chmod u+x nvim-linux-x86_64.appimage
+    
+    # Extract it (works without FUSE)
+    ./nvim-linux-x86_64.appimage --appimage-extract >/dev/null 2>&1
+    
+    # Move the entire extracted directory to /opt
+    sudo rm -rf /opt/nvim
+    sudo mv squashfs-root /opt/nvim
+    
+    # Create symlink for the binary
+    sudo ln -sf /opt/nvim/usr/bin/nvim /usr/local/bin/nvim
+    
+    # Cleanup
+    rm nvim-linux-x86_64.appimage
+    
+    say "Neovim installed: $(nvim --version | head -1)"
+  else
+    say "Neovim already installed: $(nvim --version | head -1)"
+  fi
+}
+
+[ "$FULL_INSTALL" = 1 ] && install_neovim
 
 # 3) Clone or update repo FIRST (before oh-my-zsh)
 if [ ! -d "$DEST/.git" ]; then
