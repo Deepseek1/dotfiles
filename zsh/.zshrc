@@ -9,6 +9,12 @@ plugins=(
   zsh-syntax-highlighting
 )
 
+# bun PATH
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+
+# claude path
+export PATH="$HOME/.local/bin:$PATH"
 # RM SAFELY SCRIPT LOCATION ##
 [ -f ~/.rm-safety.sh ] && source ~/.rm-safety.sh
 
