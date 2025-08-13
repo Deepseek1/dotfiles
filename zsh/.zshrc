@@ -23,7 +23,7 @@ plugins=(
 export PATH="$HOME/.local/bin:$HOME/.bun/bin:$PATH"
 export BUN_INSTALL="$HOME/.bun"
 
---------# NVM setup (cross-platform) - for managing Node.js versions
+# NVM setup (cross-platform) - for managing Node.js versions
 export NVM_DIR="$HOME/.nvm"
 
 # macOS with Homebrew (Apple Silicon)
