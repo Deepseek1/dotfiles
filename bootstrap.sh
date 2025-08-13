@@ -51,7 +51,7 @@ install_pkgs() {
     fi
     
     if [ "$FULL_INSTALL" = 1 ]; then
-      PKGS_DEV="tmux tree gh openssh less ripgrep fd neovim htop jq python3 fzf"
+      PKGS_DEV="tmux tree gh openssh less ripgrep fd neovim htop jq python3 fzf bat eza zoxide"
       say "Installing packages with Homebrew..."
       brew install $PKGS_CORE $PKGS_DEV
     else
@@ -64,21 +64,21 @@ install_pkgs() {
     if [ "$FULL_INSTALL" = 1 ]; then
       # Install ALL the packages we have in Dockerfile
       if   command -v apt    >/dev/null 2>&1; then 
-        PKGS_DEV="tmux tree gh openssh-client less file ripgrep fd-find build-essential neovim procps htop jq python3 python3-pip fzf"
+        PKGS_DEV="tmux tree gh openssh-client less file ripgrep fd-find build-essential neovim procps htop jq python3 python3-pip fzf bat exa zoxide"
         $CMD_PREFIX apt update && $CMD_PREFIX apt install -y $PKGS_CORE $PKGS_DEV
         # Fix fd name on Debian/Ubuntu
         [ -f /usr/bin/fdfind ] && $CMD_PREFIX ln -sf /usr/bin/fdfind /usr/local/bin/fd
         
       elif command -v dnf    >/dev/null 2>&1; then 
-        PKGS_DEV="tmux tree gh openssh-clients less file ripgrep fd-find gcc make neovim procps-ng htop jq python3 python3-pip fzf"
+        PKGS_DEV="tmux tree gh openssh-clients less file ripgrep fd-find gcc make neovim procps-ng htop jq python3 python3-pip fzf bat exa zoxide"
         $CMD_PREFIX dnf install -y $PKGS_CORE $PKGS_DEV
         
       elif command -v pacman >/dev/null 2>&1; then 
-        PKGS_DEV="tmux tree github-cli openssh less file ripgrep fd base-devel neovim procps-ng htop jq python python-pip fzf"
+        PKGS_DEV="tmux tree github-cli openssh less file ripgrep fd base-devel neovim procps-ng htop jq python python-pip fzf bat exa zoxide"
         $CMD_PREFIX pacman -Sy --needed $PKGS_CORE $PKGS_DEV
         
       elif command -v zypper >/dev/null 2>&1; then 
-        PKGS_DEV="tmux tree gh openssh less file ripgrep fd gcc make neovim procps htop jq python3 python3-pip fzf"
+        PKGS_DEV="tmux tree gh openssh less file ripgrep fd gcc make neovim procps htop jq python3 python3-pip fzf bat exa zoxide"
         $CMD_PREFIX zypper --non-interactive in $PKGS_CORE $PKGS_DEV
       else
         say "No supported package manager. Install packages manually."
@@ -102,7 +102,7 @@ install_pkgs() {
 need=0
 if [ "$FULL_INSTALL" = 1 ]; then
   # Check for all the tools we need
-  for c in git stow zsh curl wget tmux nvim tree gh less rg fd htop jq python3 fzf; do 
+  for c in git stow zsh curl wget tmux nvim tree gh less rg fd htop jq python3 fzf bat eza zoxide; do 
     # Skip file check on macOS (not needed)
     if [ "$OS" = "macos" ] && [ "$c" = "file" ]; then continue; fi
     command -v "$c" >/dev/null 2>&1 || need=1
