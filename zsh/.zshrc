@@ -23,10 +23,19 @@ plugins=(
 export PATH="$HOME/.local/bin:$HOME/.bun/bin:$PATH"
 export BUN_INSTALL="$HOME/.bun"
 
-# NVM setup (for Node.js development)
+--------# NVM setup (cross-platform) - for managing Node.js versions
 export NVM_DIR="$HOME/.nvm"
+
+# macOS with Homebrew (Apple Silicon)
 [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"
 [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"
+
+# macOS with Homebrew (Intel)
+[ -s "/usr/local/opt/nvm/nvm.sh" ] && \. "/usr/local/opt/nvm/nvm.sh"
+
+# Linux/Standard installation
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 
 # Source private environment variables (for API keys, etc.)
 [ -f ~/.env ] && source ~/.env
