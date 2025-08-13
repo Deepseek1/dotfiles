@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# dotfiles bootstrap: fresh Linux => apply my configs
+# dotfiles bootstrap: fresh Linux/macOS => apply my configs
 set -Eeuo pipefail
 
 REPO="${REPO:-https://github.com/Deepseek1/dotfiles.git}"
@@ -13,53 +13,98 @@ FULL_INSTALL="${FULL_INSTALL:-1}"
 
 say() { printf '[bootstrap] %s\n' "$*"; }
 
-# 0) Pre-auth sudo once (if present)
+# Detect OS
+OS="unknown"
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  OS="macos"
+elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+  OS="linux"
+fi
+
+# 0) Pre-auth sudo once (if present and not root)
 if [ "$EUID" -ne 0 ] && command -v sudo >/dev/null 2>&1; then 
   sudo -v || true
 fi
 
 # 1) Install deps
 install_pkgs() {
-  local PKGS_CORE="git stow zsh curl wget"
+  local PKGS_CORE="bash git stow zsh curl wget"
   local PKGS_DEV=""
   
-  if [ "$FULL_INSTALL" = 1 ]; then
-    # Note: We don't install neovim from package manager - we'll get it from GitHub
-    if   command -v apt    >/dev/null 2>&1; then 
-      PKGS_DEV="tmux tree gh openssh-client less file ripgrep fd-find build-essential"
-      sudo apt update && sudo apt install -y $PKGS_CORE $PKGS_DEV
-      # Fix fd name on Debian/Ubuntu
-      [ -f /usr/bin/fdfind ] && sudo ln -sf /usr/bin/fdfind /usr/local/bin/fd
+  # Determine if we need sudo
+  local CMD_PREFIX=""
+  if [ "$EUID" -ne 0 ] && command -v sudo >/dev/null 2>&1; then
+    CMD_PREFIX="sudo"
+  fi
+  
+  if [ "$OS" = "macos" ]; then
+    # macOS with Homebrew
+    # First ensure Homebrew is installed
+    if ! command -v brew >/dev/null 2>&1; then
+      say "Installing Homebrew..."
+      /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
       
-    elif command -v dnf    >/dev/null 2>&1; then 
-      PKGS_DEV="tmux tree gh openssh-clients less file ripgrep fd-find gcc make"
-      sudo dnf install -y $PKGS_CORE $PKGS_DEV
-      
-    elif command -v pacman >/dev/null 2>&1; then 
-      PKGS_DEV="tmux tree github-cli openssh less file ripgrep fd base-devel"
-      sudo pacman -Sy --needed $PKGS_CORE $PKGS_DEV
-      
-    elif command -v zypper >/dev/null 2>&1; then 
-      PKGS_DEV="tmux tree gh openssh less file ripgrep fd gcc make"
-      sudo zypper --non-interactive in $PKGS_CORE $PKGS_DEV
+      # Add Homebrew to PATH for Apple Silicon Macs
+      if [[ -f "/opt/homebrew/bin/brew" ]]; then
+        eval "$(/opt/homebrew/bin/brew shellenv)"
+      fi
+    fi
+    
+    if [ "$FULL_INSTALL" = 1 ]; then
+      PKGS_DEV="tmux tree gh openssh less ripgrep fd neovim htop jq python3"
+      say "Installing packages with Homebrew..."
+      brew install $PKGS_CORE $PKGS_DEV
     else
-      say "No supported package manager. Install packages manually."
-      exit 1
+      say "Installing core packages with Homebrew..."
+      brew install $PKGS_CORE
+    fi
+    
+  elif [ "$OS" = "linux" ]; then
+    # Linux distributions
+    if [ "$FULL_INSTALL" = 1 ]; then
+      # Install ALL the packages we have in Dockerfile
+      if   command -v apt    >/dev/null 2>&1; then 
+        PKGS_DEV="tmux tree gh openssh-client less file ripgrep fd-find build-essential neovim procps htop jq python3 python3-pip"
+        $CMD_PREFIX apt update && $CMD_PREFIX apt install -y $PKGS_CORE $PKGS_DEV
+        # Fix fd name on Debian/Ubuntu
+        [ -f /usr/bin/fdfind ] && $CMD_PREFIX ln -sf /usr/bin/fdfind /usr/local/bin/fd
+        
+      elif command -v dnf    >/dev/null 2>&1; then 
+        PKGS_DEV="tmux tree gh openssh-clients less file ripgrep fd-find gcc make neovim procps-ng htop jq python3 python3-pip"
+        $CMD_PREFIX dnf install -y $PKGS_CORE $PKGS_DEV
+        
+      elif command -v pacman >/dev/null 2>&1; then 
+        PKGS_DEV="tmux tree github-cli openssh less file ripgrep fd base-devel neovim procps-ng htop jq python python-pip"
+        $CMD_PREFIX pacman -Sy --needed $PKGS_CORE $PKGS_DEV
+        
+      elif command -v zypper >/dev/null 2>&1; then 
+        PKGS_DEV="tmux tree gh openssh less file ripgrep fd gcc make neovim procps htop jq python3 python3-pip"
+        $CMD_PREFIX zypper --non-interactive in $PKGS_CORE $PKGS_DEV
+      else
+        say "No supported package manager. Install packages manually."
+        exit 1
+      fi
+    else
+      # Minimal install - just core packages
+      if   command -v apt    >/dev/null 2>&1; then $CMD_PREFIX apt update && $CMD_PREFIX apt install -y $PKGS_CORE
+      elif command -v dnf    >/dev/null 2>&1; then $CMD_PREFIX dnf install -y $PKGS_CORE
+      elif command -v pacman >/dev/null 2>&1; then $CMD_PREFIX pacman -Sy --needed $PKGS_CORE
+      elif command -v zypper >/dev/null 2>&1; then $CMD_PREFIX zypper --non-interactive in $PKGS_CORE
+      fi
     fi
   else
-    # Minimal install - just core packages
-    if   command -v apt    >/dev/null 2>&1; then sudo apt update && sudo apt install -y $PKGS_CORE
-    elif command -v dnf    >/dev/null 2>&1; then sudo dnf install -y $PKGS_CORE
-    elif command -v pacman >/dev/null 2>&1; then sudo pacman -Sy --needed $PKGS_CORE
-    elif command -v zypper >/dev/null 2>&1; then sudo zypper --non-interactive in $PKGS_CORE
-    fi
+    say "Unsupported OS: $OSTYPE"
+    exit 1
   fi
 }
 
 # Check if we need to install packages
 need=0
 if [ "$FULL_INSTALL" = 1 ]; then
-  for c in git stow zsh curl wget tmux; do 
+  # Check for all the tools we need
+  for c in git stow zsh curl wget tmux nvim tree gh less rg fd htop jq python3; do 
+    # Skip file check on macOS (not needed)
+    if [ "$OS" = "macos" ] && [ "$c" = "file" ]; then continue; fi
     command -v "$c" >/dev/null 2>&1 || need=1
   done
 else
@@ -69,38 +114,7 @@ else
 fi
 [ "$need" = 1 ] && install_pkgs
 
-# 2) Install latest stable Neovim from GitHub
-install_neovim() {
-  if ! command -v nvim >/dev/null 2>&1; then
-    say "Installing latest stable Neovim from GitHub..."
-    cd /tmp
-    
-    # Get the latest stable AppImage (v0.11.3 as of now)
-    wget -q https://github.com/neovim/neovim/releases/download/v0.11.3/nvim-linux-x86_64.appimage
-    chmod u+x nvim-linux-x86_64.appimage
-    
-    # Extract it (works without FUSE)
-    ./nvim-linux-x86_64.appimage --appimage-extract >/dev/null 2>&1
-    
-    # Move the entire extracted directory to /opt
-    sudo rm -rf /opt/nvim
-    sudo mv squashfs-root /opt/nvim
-    
-    # Create symlink for the binary
-    sudo ln -sf /opt/nvim/usr/bin/nvim /usr/local/bin/nvim
-    
-    # Cleanup
-    rm nvim-linux-x86_64.appimage
-    
-    say "Neovim installed: $(nvim --version | head -1)"
-  else
-    say "Neovim already installed: $(nvim --version | head -1)"
-  fi
-}
-
-[ "$FULL_INSTALL" = 1 ] && install_neovim
-
-# 3) Clone or update repo FIRST (before oh-my-zsh)
+# 2) Clone or update repo
 if [ ! -d "$DEST/.git" ]; then
   say "Cloning $REPO to $DEST"
   git clone --recurse-submodules "$REPO" "$DEST"
@@ -150,10 +164,32 @@ if [ "$INSTALL_OMZ" = 1 ]; then
     git clone https://github.com/zsh-users/zsh-syntax-highlighting "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting"
 fi
 
-# 6) Install starship
+# 6) Install starship - handles root, sudo, non-sudo, and macOS cases
 if [ "$INSTALL_STARSHIP" = 1 ] && ! command -v starship >/dev/null 2>&1; then
   say "Installing starship..."
-  curl -fsSL https://starship.rs/install.sh | sh -s -- -y
+  
+  if [ "$OS" = "macos" ]; then
+    # On macOS, use Homebrew
+    brew install starship
+  elif [ "$EUID" -eq 0 ]; then
+    # Running as root (like in Docker containers)
+    # Install directly without sudo
+    curl -fsSL https://starship.rs/install.sh | sh -s -- -y -b /usr/local/bin
+  elif command -v sudo >/dev/null 2>&1; then
+    # Not root but have sudo - use it
+    curl -fsSL https://starship.rs/install.sh | sudo sh -s -- -y
+  else
+    # No root, no sudo - install to user directory
+    say "Installing starship to ~/.local/bin (no sudo available)"
+    mkdir -p "$HOME/.local/bin"
+    curl -fsSL https://starship.rs/install.sh | sh -s -- -y -b "$HOME/.local/bin"
+    
+    # Add to PATH if not already there
+    if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+      export PATH="$HOME/.local/bin:$PATH"
+      say "Added ~/.local/bin to PATH"
+    fi
+  fi
 fi
 
 # 7) Install Neovim plugins
@@ -162,11 +198,24 @@ if command -v nvim >/dev/null 2>&1 && [ -d "$HOME/.config/nvim" ]; then
   nvim --headless "+Lazy! sync" +qa 2>/dev/null || true
 fi
 
-# 8) Make zsh the default shell
-if [ "$SET_DEFAULT_SHELL" = 1 ] && [ "$SHELL" != "$(command -v zsh)" ]; then
-  if command -v chsh >/dev/null 2>&1; then
+# 8) Make zsh the default shell - skip if root or in container
+if [ "$SET_DEFAULT_SHELL" = 1 ] && [ "$EUID" -ne 0 ] && [ "$SHELL" != "$(command -v zsh)" ]; then
+  if [ "$OS" = "macos" ]; then
+    # On macOS, add Homebrew's zsh to allowed shells if needed
+    ZSH_PATH="$(command -v zsh)"
+    if ! grep -q "^$ZSH_PATH$" /etc/shells; then
+      say "Adding $ZSH_PATH to /etc/shells"
+      echo "$ZSH_PATH" | sudo tee -a /etc/shells >/dev/null
+    fi
     say "Setting default shell to zsh (new sessions only)"
-    chsh -s "$(command -v zsh)" "$USER" || true
+    chsh -s "$ZSH_PATH" || true
+  elif command -v chsh >/dev/null 2>&1; then
+    say "Setting default shell to zsh (new sessions only)"
+    if [ -n "${USER:-}" ]; then
+      chsh -s "$(command -v zsh)" "$USER" || true
+    else
+      chsh -s "$(command -v zsh)" || true
+    fi
   fi
 fi
 
@@ -177,4 +226,11 @@ if [ "$FULL_INSTALL" = 1 ]; then
   say "Full development environment installed"
 else
   say "Minimal install complete. Run with FULL_INSTALL=1 for all dev tools."
+fi
+
+# macOS-specific post-install notes
+if [ "$OS" = "macos" ]; then
+  say "Note: On macOS, some tools may require additional setup:"
+  say "  - If on Apple Silicon, ensure /opt/homebrew/bin is in your PATH"
+  say "  - You may need to restart your terminal for all changes to take effect"
 fi
