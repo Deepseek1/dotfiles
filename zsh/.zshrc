@@ -37,6 +37,17 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 
+# FZF setup - auto-detect installation path
+if [ -d "/opt/homebrew/opt/fzf" ]; then
+  export FZF_BASE="/opt/homebrew/opt/fzf"  # macOS Apple Silicon
+elif [ -d "/usr/local/opt/fzf" ]; then
+  export FZF_BASE="/usr/local/opt/fzf"     # macOS Intel
+elif [ -d "/usr/share/fzf" ]; then
+  export FZF_BASE="/usr/share/fzf"         # Ubuntu/Debian
+elif [ -d "/usr/share/doc/fzf" ]; then
+  export FZF_BASE="/usr/share/doc/fzf"     # Some other Linux distros
+fi
+
 # Source private environment variables (for API keys, etc.)
 [ -f ~/.env ] && source ~/.env
 
@@ -85,13 +96,14 @@ export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border'
 bindkey -M emacs '^[[A' history-substring-search-up
 bindkey -M emacs '^[[B' history-substring-search-down
 
-# Sudo from Alt+s
+# Sudo from Alt+s (and Ctrl+X+S for macOS compatibility)
 zle -N sudo-command-line
 sudo-command-line() { 
     zle beginning-of-line
     LBUFFER="sudo $LBUFFER"
 }
-bindkey '^[s' sudo-command-line
+bindkey '^[s' sudo-command-line    # Alt+S (if Meta key enabled)
+bindkey '^Xs' sudo-command-line    # Ctrl+X then S (always works on macOS)
 
 # Dotfiles tracking warning function
 function check_dotfiles_changes() {

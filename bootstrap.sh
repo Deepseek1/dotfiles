@@ -51,7 +51,7 @@ install_pkgs() {
     fi
     
     if [ "$FULL_INSTALL" = 1 ]; then
-      PKGS_DEV="tmux tree gh openssh less ripgrep fd neovim htop jq python3"
+      PKGS_DEV="tmux tree gh openssh less ripgrep fd neovim htop jq python3 fzf"
       say "Installing packages with Homebrew..."
       brew install $PKGS_CORE $PKGS_DEV
     else
@@ -64,21 +64,21 @@ install_pkgs() {
     if [ "$FULL_INSTALL" = 1 ]; then
       # Install ALL the packages we have in Dockerfile
       if   command -v apt    >/dev/null 2>&1; then 
-        PKGS_DEV="tmux tree gh openssh-client less file ripgrep fd-find build-essential neovim procps htop jq python3 python3-pip"
+        PKGS_DEV="tmux tree gh openssh-client less file ripgrep fd-find build-essential neovim procps htop jq python3 python3-pip fzf"
         $CMD_PREFIX apt update && $CMD_PREFIX apt install -y $PKGS_CORE $PKGS_DEV
         # Fix fd name on Debian/Ubuntu
         [ -f /usr/bin/fdfind ] && $CMD_PREFIX ln -sf /usr/bin/fdfind /usr/local/bin/fd
         
       elif command -v dnf    >/dev/null 2>&1; then 
-        PKGS_DEV="tmux tree gh openssh-clients less file ripgrep fd-find gcc make neovim procps-ng htop jq python3 python3-pip"
+        PKGS_DEV="tmux tree gh openssh-clients less file ripgrep fd-find gcc make neovim procps-ng htop jq python3 python3-pip fzf"
         $CMD_PREFIX dnf install -y $PKGS_CORE $PKGS_DEV
         
       elif command -v pacman >/dev/null 2>&1; then 
-        PKGS_DEV="tmux tree github-cli openssh less file ripgrep fd base-devel neovim procps-ng htop jq python python-pip"
+        PKGS_DEV="tmux tree github-cli openssh less file ripgrep fd base-devel neovim procps-ng htop jq python python-pip fzf"
         $CMD_PREFIX pacman -Sy --needed $PKGS_CORE $PKGS_DEV
         
       elif command -v zypper >/dev/null 2>&1; then 
-        PKGS_DEV="tmux tree gh openssh less file ripgrep fd gcc make neovim procps htop jq python3 python3-pip"
+        PKGS_DEV="tmux tree gh openssh less file ripgrep fd gcc make neovim procps htop jq python3 python3-pip fzf"
         $CMD_PREFIX zypper --non-interactive in $PKGS_CORE $PKGS_DEV
       else
         say "No supported package manager. Install packages manually."
@@ -102,7 +102,7 @@ install_pkgs() {
 need=0
 if [ "$FULL_INSTALL" = 1 ]; then
   # Check for all the tools we need
-  for c in git stow zsh curl wget tmux nvim tree gh less rg fd htop jq python3; do 
+  for c in git stow zsh curl wget tmux nvim tree gh less rg fd htop jq python3 fzf; do 
     # Skip file check on macOS (not needed)
     if [ "$OS" = "macos" ] && [ "$c" = "file" ]; then continue; fi
     command -v "$c" >/dev/null 2>&1 || need=1
@@ -162,6 +162,8 @@ if [ "$INSTALL_OMZ" = 1 ]; then
     git clone https://github.com/zsh-users/zsh-autosuggestions "$ZSH_CUSTOM/plugins/zsh-autosuggestions"
   [ ! -d "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" ] && \
     git clone https://github.com/zsh-users/zsh-syntax-highlighting "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting"
+  [ ! -d "$ZSH_CUSTOM/plugins/fzf-tab" ] && \
+    git clone https://github.com/Aloxaf/fzf-tab "$ZSH_CUSTOM/plugins/fzf-tab"
 fi
 
 # 6) Install starship - handles root, sudo, non-sudo, and macOS cases
@@ -196,6 +198,12 @@ fi
 if command -v nvim >/dev/null 2>&1 && [ -d "$HOME/.config/nvim" ]; then
   say "Installing Neovim plugins..."
   nvim --headless "+Lazy! sync" +qa 2>/dev/null || true
+fi
+
+# 7.1) Install TPM (Tmux Plugin Manager)
+if command -v tmux >/dev/null 2>&1 && [ ! -d "$HOME/.tmux/plugins/tpm" ]; then
+  say "Installing TPM (Tmux Plugin Manager)..."
+  git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"
 fi
 
 # 7.5) Install NVM (Node Version Manager)
