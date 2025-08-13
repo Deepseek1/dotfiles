@@ -31,6 +31,16 @@
 
 # Fuzzy directory listing functions
 function zls() {
+  # Check for required dependencies
+  if ! command -v zoxide >/dev/null 2>&1; then
+    echo "❌ Error: zoxide is not installed. Install it with: brew install zoxide"
+    return 1
+  fi
+  if ! command -v eza >/dev/null 2>&1; then
+    echo "❌ Error: eza is not installed. Install it with: brew install eza"
+    return 1
+  fi
+  
   local dir
   if [ $# -eq 0 ]; then
     # No arguments - use zi to pick directory interactively
@@ -47,6 +57,16 @@ function zls() {
 }
 
 function zll() {
+  # Check for required dependencies
+  if ! command -v zoxide >/dev/null 2>&1; then
+    echo "❌ Error: zoxide is not installed. Install it with: brew install zoxide"
+    return 1
+  fi
+  if ! command -v eza >/dev/null 2>&1; then
+    echo "❌ Error: eza is not installed. Install it with: brew install eza"
+    return 1
+  fi
+  
   local dir
   if [ $# -eq 0 ]; then
     dir=$(zoxide query -i)
@@ -61,6 +81,16 @@ function zll() {
 }
 
 function zla() {
+  # Check for required dependencies
+  if ! command -v zoxide >/dev/null 2>&1; then
+    echo "❌ Error: zoxide is not installed. Install it with: brew install zoxide"
+    return 1
+  fi
+  if ! command -v eza >/dev/null 2>&1; then
+    echo "❌ Error: eza is not installed. Install it with: brew install eza"
+    return 1
+  fi
+  
   local dir
   if [ $# -eq 0 ]; then
     dir=$(zoxide query -i)

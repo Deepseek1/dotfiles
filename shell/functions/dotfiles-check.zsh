@@ -27,9 +27,16 @@ function check_dotfiles_changes() {
     if [[ -n "$(git -C "$dfdir" status --porcelain)" ]]; then
         print -P "%F{yellow}⚠ Dotfiles have uncommitted changes%f"
     else
-        # Check if branch is ahead of origin
-        if ! git -C "$dfdir" diff --quiet HEAD origin/$(git -C "$dfdir" symbolic-ref --short HEAD 2>/dev/null) 2>/dev/null; then
-            print -P "%F{yellow}⬆ Dotfiles have commits not pushed to GitHub%f"
+        # Check if upstream branch exists and if local is ahead
+        local upstream
+        upstream=$(git -C "$dfdir" rev-parse --abbrev-ref @{u} 2>/dev/null)
+        if [[ -n "$upstream" ]]; then
+            # Check if local branch is ahead of upstream
+            local ahead
+            ahead=$(git -C "$dfdir" rev-list --count "$upstream"..HEAD 2>/dev/null)
+            if [[ "$ahead" -gt 0 ]]; then
+                print -P "%F{yellow}⬆ Dotfiles have $ahead commit(s) not pushed to GitHub%f"
+            fi
         fi
     fi
 }

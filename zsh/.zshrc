@@ -2,7 +2,7 @@
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="robbyrussell"
 
-# Plugins (enhanced list with all the best ones)
+# Plugins (keeping all for better functionality)
 plugins=(
   git
   z                              # Jump to frequent directories
@@ -23,19 +23,29 @@ plugins=(
 export PATH="$HOME/.local/bin:$HOME/.bun/bin:$PATH"
 export BUN_INSTALL="$HOME/.bun"
 
-# NVM setup (cross-platform) - for managing Node.js versions
+# NVM setup (lazy loaded for faster startup)
 export NVM_DIR="$HOME/.nvm"
-
-# macOS with Homebrew (Apple Silicon)
-[ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"
-[ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"
-
-# macOS with Homebrew (Intel)
-[ -s "/usr/local/opt/nvm/nvm.sh" ] && \. "/usr/local/opt/nvm/nvm.sh"
-
-# Linux/Standard installation
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+# Lazy load NVM only when needed (saves ~500ms)
+nvm() {
+  unset -f nvm node npm npx
+  if [ -s "/opt/homebrew/opt/nvm/nvm.sh" ]; then
+    \. "/opt/homebrew/opt/nvm/nvm.sh"
+  elif [ -s "/usr/local/opt/nvm/nvm.sh" ]; then
+    \. "/usr/local/opt/nvm/nvm.sh"  
+  elif [ -s "$NVM_DIR/nvm.sh" ]; then
+    \. "$NVM_DIR/nvm.sh"
+  fi
+  if [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ]; then
+    \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"
+  elif [ -s "$NVM_DIR/bash_completion" ]; then
+    \. "$NVM_DIR/bash_completion"
+  fi
+  nvm "$@"
+}
+# Stub functions that trigger NVM loading on first use
+node() { nvm; node "$@"; }
+npm() { nvm; npm "$@"; }
+npx() { nvm; npx "$@"; }
 
 # FZF setup - auto-detect installation path
 if [ -d "/opt/homebrew/opt/fzf" ]; then
@@ -49,7 +59,9 @@ elif [ -d "/usr/share/doc/fzf" ]; then
 fi
 
 # Source private environment variables (for API keys, etc.)
-[ -f ~/.env ] && source ~/.env
+# WARNING: Only source if you trust the contents and need these vars in all shells
+# Consider using direnv or manual sourcing for project-specific variables
+[ -f ~/.env ] && [ -r ~/.env ] && source ~/.env
 
 
 # Source oh-my-zsh
@@ -66,7 +78,10 @@ alias la='ls -A'
 alias gpt='chatgpt'
 alias ccusage='bunx --bun ccusage'
 alias dotpush='cd ~/dotfiles && git add -u && git commit -m "Update configs" && git push && cd -'
-alias fd=fdfind
+# fd/fdfind compatibility (Ubuntu/Debian use fdfind)
+if command -v fdfind >/dev/null 2>&1 && ! command -v fd >/dev/null 2>&1; then
+  alias fd=fdfind
+fi
 
 # Modern tool aliases (if available)
 if command -v eza >/dev/null 2>&1; then
@@ -77,8 +92,17 @@ if command -v eza >/dev/null 2>&1; then
   alias la='eza -la --icons --color=always --group-directories-first --git'
   alias lt='eza --tree --icons --color=always --level=2'
 fi
-command -v bat >/dev/null 2>&1 && export BAT_THEME="gruvbox-dark" && alias cat='bat --style=plain'
-command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init zsh)"
+command -v bat >/dev/null 2>&1 && export BAT_THEME="gruvbox-dark" && alias cat='bat --style=numbers'
+# Lazy load zoxide (saves ~30ms)
+if command -v zoxide >/dev/null 2>&1; then
+  __zoxide_z() {
+    unset -f z zi
+    eval "$(zoxide init zsh)"
+    z "$@"
+  }
+  alias z='__zoxide_z'
+  alias zi='__zoxide_z -i'
+fi
 
 # History settings
 HISTFILE="$HOME/.zsh_history"
@@ -88,6 +112,7 @@ setopt HIST_IGNORE_ALL_DUPS HIST_IGNORE_DUPS HIST_REDUCE_BLANKS SHARE_HISTORY EX
 
 # Completion caching
 autoload -Uz compinit
+# Use -C for faster startup (skips security check) - only safe if you trust all completion files
 compinit -C
 
 # FZF configuration
@@ -122,15 +147,26 @@ source "$HOME/dotfiles/shell/functions/dotfiles-check.zsh"
 source "$HOME/dotfiles/shell/functions/fuzzy-listing.zsh" 
 source "$HOME/dotfiles/shell/functions/fuzzy-nvim.zsh"
 
-# Add the dotfiles check as a precmd hook
-autoload -Uz add-zsh-hook
-add-zsh-hook precmd check_dotfiles_changes
+# Add the dotfiles check as a precmd hook (disabled for performance)
+# autoload -Uz add-zsh-hook
+# add-zsh-hook precmd check_dotfiles_changes
 
 # Bun completions
 [ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 
-# Initialize starship prompt
-eval "$(starship init zsh)"
+# Initialize starship prompt (using faster method)
+if command -v starship >/dev/null 2>&1; then
+  eval "$(starship init zsh --print-full-init)"
+fi
 
 # Set default file permissions
 umask 002
+
+# Benchmark function to test shell startup time
+zsh-bench() {
+  echo "Testing shell startup time (10 runs)..."
+  for i in {1..10}; do
+    time zsh -i -c exit
+  done
+}
+
