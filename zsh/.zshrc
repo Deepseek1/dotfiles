@@ -51,8 +51,6 @@ fi
 # Source private environment variables (for API keys, etc.)
 [ -f ~/.env ] && source ~/.env
 
-# RM SAFELY SCRIPT LOCATION
-[ -f ~/.rm-safety.sh ] && source ~/.rm-safety.sh
 
 # Source oh-my-zsh
 source "$ZSH/oh-my-zsh.sh"
@@ -71,7 +69,14 @@ alias dotpush='cd ~/dotfiles && git add -u && git commit -m "Update configs" && 
 alias fd=fdfind
 
 # Modern tool aliases (if available)
-command -v eza >/dev/null 2>&1 && alias ls='eza --icons' && alias ll='eza -l --icons' && alias la='eza -la --icons'
+if command -v eza >/dev/null 2>&1; then
+  # Colorful eza setup
+  export EXA_COLORS="di=1;36:ln=1;35:so=1;32:pi=1;33:ex=1;31:bd=1;34:cd=1;33:su=1;41:sg=1;46:tw=1;42:ow=1;43"
+  alias ls='eza --icons --color=always --group-directories-first'
+  alias ll='eza -l --icons --color=always --group-directories-first --git'
+  alias la='eza -la --icons --color=always --group-directories-first --git'
+  alias lt='eza --tree --icons --color=always --level=2'
+fi
 command -v bat >/dev/null 2>&1 && export BAT_THEME="gruvbox-dark" && alias cat='bat --style=plain'
 command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init zsh)"
 
@@ -105,21 +110,17 @@ sudo-command-line() {
 bindkey '^[s' sudo-command-line    # Alt+S (if Meta key enabled)
 bindkey '^Xs' sudo-command-line    # Ctrl+X then S (always works on macOS)
 
-# Dotfiles tracking warning function
-function check_dotfiles_changes() {
-    local dfdir="$HOME/dotfiles"
-    # Only check if the repo exists
-    [[ -d "$dfdir/.git" ]] || return
-    # Check for uncommitted changes
-    if [[ -n "$(git -C "$dfdir" status --porcelain)" ]]; then
-        print -P "%F{yellow}⚠ Dotfiles have uncommitted changes%f"
-    else
-        # Check if branch is ahead of origin
-        if ! git -C "$dfdir" diff --quiet HEAD origin/$(git -C "$dfdir" symbolic-ref --short HEAD 2>/dev/null) 2>/dev/null; then
-            print -P "%F{yellow}⬆ Dotfiles have commits not pushed to GitHub%f"
-        fi
-    fi
-}
+# Load custom functions and utilities
+# - rm-safety.sh: Safe rm command with trash functionality
+# - dotfiles-check.zsh: Git status warnings for uncommitted dotfiles
+# - fuzzy-listing.zsh: Smart directory listing (zls, zll, zla) 
+# - fuzzy-nvim.zsh: Intelligent file finder and editor (znvim)
+[ -f ~/.rm-safety.sh ] && source ~/.rm-safety.sh
+
+# Load shell functions
+source "$HOME/dotfiles/shell/functions/dotfiles-check.zsh"
+source "$HOME/dotfiles/shell/functions/fuzzy-listing.zsh" 
+source "$HOME/dotfiles/shell/functions/fuzzy-nvim.zsh"
 
 # Add the dotfiles check as a precmd hook
 autoload -Uz add-zsh-hook
