@@ -6,7 +6,7 @@ REPO="${REPO:-https://github.com/Deepseek1/dotfiles.git}"
 DEST="${DEST:-$HOME/dotfiles}"
 
 # Flags you can override
-INSTALL_STARSHIP="${INSTALL_STARSHIP:-1}"
+INSTALL_OHMYPOSH="${INSTALL_OHMYPOSH:-1}"
 INSTALL_OMZ="${INSTALL_OMZ:-1}"
 SET_DEFAULT_SHELL="${SET_DEFAULT_SHELL:-1}"
 FULL_INSTALL="${FULL_INSTALL:-1}"
@@ -128,7 +128,7 @@ fi
 # This ensures OUR configs are in place first
 cd "$DEST"
 PKGS=""
-for d in zsh tmux git nvim starship shell kitty oh-my-posh; do 
+for d in zsh tmux git nvim shell kitty oh-my-posh; do 
   if [ -d "$d" ]; then
     PKGS="$PKGS $d"
   fi
@@ -167,25 +167,25 @@ if [ "$INSTALL_OMZ" = 1 ]; then
     git clone https://github.com/Aloxaf/fzf-tab "$ZSH_CUSTOM/plugins/fzf-tab"
 fi
 
-# 6) Install starship - handles root, sudo, non-sudo, and macOS cases
-if [ "$INSTALL_STARSHIP" = 1 ] && ! command -v starship >/dev/null 2>&1; then
-  say "Installing starship..."
+# 6) Install oh-my-posh - handles root, sudo, non-sudo, and macOS cases
+if [ "$INSTALL_OHMYPOSH" = 1 ] && ! command -v oh-my-posh >/dev/null 2>&1; then
+  say "Installing oh-my-posh..."
   
   if [ "$OS" = "macos" ]; then
     # On macOS, use Homebrew
-    brew install starship
+    brew install jandedobbeleer/oh-my-posh/oh-my-posh
   elif [ "$EUID" -eq 0 ]; then
     # Running as root (like in Docker containers)
     # Install directly without sudo
-    curl -fsSL https://starship.rs/install.sh | sh -s -- -y -b /usr/local/bin
+    curl -s https://ohmyposh.dev/install.sh | bash -s -- -d /usr/local/bin
   elif command -v sudo >/dev/null 2>&1; then
     # Not root but have sudo - use it
-    curl -fsSL https://starship.rs/install.sh | sudo sh -s -- -y
+    curl -s https://ohmyposh.dev/install.sh | sudo bash -s
   else
     # No root, no sudo - install to user directory
-    say "Installing starship to ~/.local/bin (no sudo available)"
+    say "Installing oh-my-posh to ~/.local/bin (no sudo available)"
     mkdir -p "$HOME/.local/bin"
-    curl -fsSL https://starship.rs/install.sh | sh -s -- -y -b "$HOME/.local/bin"
+    curl -s https://ohmyposh.dev/install.sh | bash -s -- -d "$HOME/.local/bin"
     
     # Add to PATH if not already there
     if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
