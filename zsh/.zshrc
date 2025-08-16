@@ -23,29 +23,6 @@ plugins=(
 export PATH="$HOME/.local/bin:$HOME/.bun/bin:$PATH"
 export BUN_INSTALL="$HOME/.bun"
 
-# NVM setup (lazy loaded for faster startup)
-export NVM_DIR="$HOME/.nvm"
-# Lazy load NVM only when needed (saves ~500ms)
-nvm() {
-  unset -f nvm node npm npx
-  if [ -s "/opt/homebrew/opt/nvm/nvm.sh" ]; then
-    \. "/opt/homebrew/opt/nvm/nvm.sh"
-  elif [ -s "/usr/local/opt/nvm/nvm.sh" ]; then
-    \. "/usr/local/opt/nvm/nvm.sh"  
-  elif [ -s "$NVM_DIR/nvm.sh" ]; then
-    \. "$NVM_DIR/nvm.sh"
-  fi
-  if [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ]; then
-    \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"
-  elif [ -s "$NVM_DIR/bash_completion" ]; then
-    \. "$NVM_DIR/bash_completion"
-  fi
-  nvm "$@"
-}
-# Stub functions that trigger NVM loading on first use
-node() { nvm; node "$@"; }
-npm() { nvm; npm "$@"; }
-npx() { nvm; npx "$@"; }
 
 # FZF setup - auto-detect installation path
 if [ -d "/opt/homebrew/opt/fzf" ]; then
