@@ -138,33 +138,34 @@ map cmd+7 goto_tab 7
 map cmd+8 goto_tab 8
 map cmd+9 goto_tab 9
 
-# Fancy tab bar with rounded corners and gradients
+# Professional developer aesthetic with status indicators
 tab_bar_edge            top
-tab_bar_style           custom
+tab_bar_style           powerline
 tab_bar_min_tabs        1
 
-# Oh-my-posh theme matching colors with gradients
+# Oh-my-posh theme matching colors
 active_tab_background   #F5C2E7  
 active_tab_foreground   #1e1e2e  
-inactive_tab_background #313244
+
+
+active_tab_font_style   bold
 inactive_tab_foreground #6c7086    
-tab_bar_background      #1e1e2e
+inactive_tab_background #313244    
+#tab_bar_background      #0d0907    
+#tab_bar_margin_color    #0d0907
 
-# Enhanced styling
-active_tab_font_style   bold-italic
-inactive_tab_font_style normal
+# Spacing and layout
+tab_bar_margin_width    0
+tab_bar_margin_height   10.0 0.0
 
-# Spacing and animations
-tab_bar_margin_width    4
-tab_bar_margin_height   8.0 4.0
-
-# Custom separators and enhanced format with icons
+# Custom separators and format
 tab_separator           ""
 tab_bar_align           left
-tab_title_max_length    25
-tab_activity_symbol     " ⚡"
+tab_title_max_length    20
+tab_activity_symbol     "•"
 bell_on_tab             " 🔔"
-tab_title_template      " {index}:{sup.num_windows if num_windows > 1 else ''} {title.split()[0] if title else 'shell'} "
+tab_title_template      "{index}: {title}"
 
-# Enhanced powerline style with custom drawing
+# For custom style, define the draw function
+# Add this to your kitty.conf or a separate Python file
 draw_tab_with_separator true

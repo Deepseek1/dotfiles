@@ -78,6 +78,8 @@ alias la='ls -A'
 alias gpt='chatgpt'
 alias ccusage='bunx --bun ccusage'
 alias dotpush='cd ~/dotfiles && git add -u && git commit -m "Update configs" && git push && cd -'
+alias vim='nvim'              # Use neovim instead of vim
+alias zvim='znvim'            # Shorter alias for fuzzy nvim
 # fd/fdfind compatibility (Ubuntu/Debian use fdfind)
 if command -v fdfind >/dev/null 2>&1 && ! command -v fd >/dev/null 2>&1; then
   alias fd=fdfind
@@ -93,15 +95,9 @@ if command -v eza >/dev/null 2>&1; then
   alias lt='eza --tree --icons --color=always --level=2'
 fi
 command -v bat >/dev/null 2>&1 && export BAT_THEME="gruvbox-dark" && alias cat='bat --style=numbers'
-# Lazy load zoxide (saves ~30ms)
+# Initialize zoxide normally (lazy loading was causing issues)
 if command -v zoxide >/dev/null 2>&1; then
-  __zoxide_z() {
-    unset -f z zi
-    eval "$(zoxide init zsh)"
-    z "$@"
-  }
-  alias z='__zoxide_z'
-  alias zi='__zoxide_z -i'
+  eval "$(zoxide init zsh)"
 fi
 
 # History settings
@@ -146,6 +142,7 @@ bindkey '^Xs' sudo-command-line    # Ctrl+X then S (always works on macOS)
 source "$HOME/dotfiles/shell/functions/dotfiles-check.zsh"
 source "$HOME/dotfiles/shell/functions/fuzzy-listing.zsh" 
 source "$HOME/dotfiles/shell/functions/fuzzy-nvim.zsh"
+source "$HOME/dotfiles/shell/functions/index-config.zsh"
 
 # Add the dotfiles check as a precmd hook (disabled for performance)
 # autoload -Uz add-zsh-hook
@@ -154,10 +151,22 @@ source "$HOME/dotfiles/shell/functions/fuzzy-nvim.zsh"
 # Bun completions
 [ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 
-# Initialize starship prompt (using faster method)
-if command -v starship >/dev/null 2>&1; then
-  eval "$(starship init zsh --print-full-init)"
+# Initialize Oh-My-Posh with transient prompt for clean history
+if command -v oh-my-posh >/dev/null 2>&1; then
+  eval "$(oh-my-posh init zsh --config ~/.config/oh-my-posh/config.json)"
+  # Enable transient prompt to minimize previous prompts
+  enable_poshtransientprompt
 fi
+
+# Add spacing before each prompt
+precmd() {
+  echo
+}
+
+# Initialize Starship prompt
+# if command -v starship >/dev/null 2>&1; then
+#   eval "$(starship init zsh)"
+# fi
 
 # Set default file permissions
 umask 002

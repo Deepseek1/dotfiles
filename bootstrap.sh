@@ -128,7 +128,7 @@ fi
 # This ensures OUR configs are in place first
 cd "$DEST"
 PKGS=""
-for d in zsh tmux git nvim starship shell kitty; do 
+for d in zsh tmux git nvim starship shell kitty oh-my-posh; do 
   if [ -d "$d" ]; then
     PKGS="$PKGS $d"
   fi

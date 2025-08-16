@@ -44,9 +44,22 @@ elseif os_name == "Linux" then
 end
 
 -- --- Visual Styling ---
-vim.api.nvim_set_hl(0, "CursorLine", { bg = "#404040" }) -- Much more visible
-vim.api.nvim_set_hl(0, "LineNr", { fg = "#FFA500" })   -- Normal line numbers
-vim.api.nvim_set_hl(0, "CursorLineNr", { fg = "#FFB52E", bold = true }) -- Current line number
+-- Old styling (commented out)
+-- vim.api.nvim_set_hl(0, "CursorLine", { bg = "#404040" }) -- Much more visible
+-- vim.api.nvim_set_hl(0, "LineNr", { fg = "#FFA500" })   -- Normal line numbers
+-- vim.api.nvim_set_hl(0, "CursorLineNr", { fg = "#FFB52E", bold = true }) -- Current line number
+
+-- Match kitty's Catppuccin Mocha background (disabled for terminal color extraction)
+-- vim.cmd("highlight Normal guibg=#1e1e2e")
+-- vim.cmd("highlight NonText guibg=#1e1e2e")
+-- vim.cmd("highlight SignColumn guibg=#1e1e2e")
+-- vim.cmd("highlight LineNr guibg=#1e1e2e")
+-- vim.api.nvim_set_hl(0, "CursorLine", { bg = "#313244" }) -- Darker than background
+-- vim.api.nvim_set_hl(0, "LineNr", { fg = "#6c7086", bg = "#1e1e2e" })   -- Catppuccin overlay0
+-- vim.api.nvim_set_hl(0, "CursorLineNr", { fg = "#F5C2E7", bold = true, bg = "#1e1e2e" }) -- Pink accent
+
+-- Enable true colors for Catppuccin theme
+vim.opt.termguicolors = true 
 
 -- --- Norwegian Keyboard Remaps (Normal Mode) ---
 vim.keymap.set('n', 'æ', '$')          -- End of line

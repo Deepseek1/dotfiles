@@ -85,6 +85,16 @@ function znvim() {
     return 1
   fi
   
+  # Common directories to search when zoxide doesn't have results
+  local common_dirs=(
+    "$HOME/Downloads"
+    "$HOME/Desktop" 
+    "$HOME/Documents"
+    "$HOME/Projects"
+    "$HOME"
+    "."
+  )
+  
   local query="$1"
   if [ -z "$query" ]; then
     echo "Usage: znvim <filename|path/pattern|path/wildcard>"
@@ -103,6 +113,18 @@ function znvim() {
     has_wildcard=true
   fi
   
+  # Handle dotfiles/hidden paths (e.g., .config/nvim/init.lua)
+  if [[ "$query" == .* ]]; then
+    # Check if it's a direct path in home directory
+    if [ -f "$HOME/$query" ]; then
+      echo "📝 Opening: $HOME/$query"
+      nvim "$HOME/$query"
+      return
+    fi
+    # Otherwise continue with normal search, treating it as a pattern
+  fi
+  
+  
   # Check if query contains a slash (path-like)
   if [[ "$query" == *"/"* ]]; then
     # Split into directory pattern and filename pattern
@@ -118,20 +140,24 @@ function znvim() {
       # Check if directory matches the pattern (case-insensitive)
       if [[ "${dir:l}" == *"${dir_pattern:l}"* ]]; then
         if [[ "$has_wildcard" == true ]]; then
-          # Use glob expansion for wildcard patterns
+          # Use glob expansion for wildcard patterns (case-insensitive)
+          setopt local_options nocasematch nocaseglob
           local glob_pattern="$dir/$file_pattern"
           for file in ${~glob_pattern}; do
             if [ -f "$file" ]; then
               found_files+=("$file")
             fi
           done
+          unsetopt nocasematch nocaseglob
         else
-          # Original behavior: look for files that start with the pattern
+          # Original behavior: look for files that start with the pattern (case-insensitive)
+          setopt local_options nocasematch nocaseglob
           for file in "$dir"/"$file_pattern"*; do
             if [ -f "$file" ]; then
               found_files+=("$file")
             fi
           done
+          unsetopt nocasematch nocaseglob
           # Also try exact match
           if [ -f "$dir/$file_pattern" ]; then
             found_files+=("$dir/$file_pattern")
@@ -143,15 +169,6 @@ function znvim() {
     
     # Second: Search in common directories (if not already found)
     if [ ${#found_files[@]} -eq 0 ]; then
-      local common_dirs=(
-        "$HOME/Downloads"
-        "$HOME/Desktop" 
-        "$HOME/Documents"
-        "$HOME/Projects"
-        "$HOME"
-        "."
-      )
-      
       for base_dir in "${common_dirs[@]}"; do
         if [ -d "$base_dir" ]; then
           setopt local_options null_glob extended_glob
@@ -162,20 +179,24 @@ function znvim() {
             local subdir_name="${subdir##*/}"
             if [ -d "$subdir" ] && [[ "${subdir_name:l}" == *"${dir_pattern:l}"* || "${subdir_name:l}" == "${dir_pattern:l}"* ]]; then
               if [[ "$has_wildcard" == true ]]; then
-                # Use glob expansion for wildcard patterns
+                # Use glob expansion for wildcard patterns (case-insensitive)
+                setopt local_options nocasematch nocaseglob
                 local glob_pattern="$subdir/$file_pattern"
                 for file in ${~glob_pattern}; do
                   if [ -f "$file" ]; then
                     found_files+=("$file")
                   fi
                 done
+                unsetopt nocasematch nocaseglob
               else
-                # Look for files that start with the file pattern
+                # Look for files that start with the file pattern (case-insensitive)
+                setopt local_options nocasematch nocaseglob
                 for file in "$subdir"/"$file_pattern"*; do
                   if [ -f "$file" ]; then
                     found_files+=("$file")
                   fi
                 done
+                unsetopt nocasematch nocaseglob
                 # Also try exact match
                 if [ -f "$subdir/$file_pattern" ]; then
                   found_files+=("$subdir/$file_pattern")
@@ -188,19 +209,23 @@ function znvim() {
           local base_dir_name="${base_dir##*/}"
           if [[ "${base_dir_name:l}" == *"${dir_pattern:l}"* || "${base_dir_name:l}" == "${dir_pattern:l}"* ]]; then
             if [[ "$has_wildcard" == true ]]; then
-              # Use glob expansion for wildcard patterns
+              # Use glob expansion for wildcard patterns (case-insensitive)
+              setopt local_options nocasematch nocaseglob
               local glob_pattern="$base_dir/$file_pattern"
               for file in ${~glob_pattern}; do
                 if [ -f "$file" ]; then
                   found_files+=("$file")
                 fi
               done
+              unsetopt nocasematch nocaseglob
             else
+              setopt local_options nocasematch nocaseglob
               for file in "$base_dir"/"$file_pattern"*; do
                 if [ -f "$file" ]; then
                   found_files+=("$file")
                 fi
               done
+              unsetopt nocasematch nocaseglob
               # Also try exact match
               if [ -f "$base_dir/$file_pattern" ]; then
                 found_files+=("$base_dir/$file_pattern")
@@ -220,7 +245,8 @@ function znvim() {
       # Handle wildcard patterns in filename
       setopt local_options null_glob
       
-      # Search in zoxide directories
+      # Search in zoxide directories (case-insensitive)
+      setopt local_options nocasematch nocaseglob
       while IFS= read -r dir; do
         local glob_pattern="$dir/$query"
         for file in ${~glob_pattern}; do
@@ -229,17 +255,10 @@ function znvim() {
           fi
         done
       done < <(zoxide query -l)
+      unsetopt nocasematch nocaseglob
       
-      # Also search in common directories
-      local common_dirs=(
-        "$HOME/Downloads"
-        "$HOME/Desktop" 
-        "$HOME/Documents"
-        "$HOME/Projects"
-        "$HOME"
-        "."
-      )
-      
+      # Also search in common directories (case-insensitive)
+      setopt local_options nocasematch nocaseglob
       for base_dir in "${common_dirs[@]}"; do
         local glob_pattern="$base_dir/$query"
         for file in ${~glob_pattern}; do
@@ -248,6 +267,7 @@ function znvim() {
           fi
         done
       done
+      unsetopt nocasematch nocaseglob
       
       unsetopt null_glob
     else
@@ -260,26 +280,27 @@ function znvim() {
       
       # Also search in common directories if not found
       if [ ${#found_files[@]} -eq 0 ]; then
-        local common_dirs=(
-          "$HOME/Downloads"
-          "$HOME/Desktop" 
-          "$HOME/Documents"
-          "$HOME/Projects"
-          "$HOME"
-          "."
-        )
-        
         for base_dir in "${common_dirs[@]}"; do
           if [ -f "$base_dir/$query" ]; then
             found_files+=("$base_dir/$query")
           fi
         done
+        
       fi
     fi
   fi
   
   # Remove duplicates while preserving order (keeps frecency ranking from zoxide)
-  found_files=($(printf '%s\n' "${found_files[@]}" | awk '!seen[$0]++'))
+  # Use a temporary array to properly handle spaces in filenames
+  local unique_files=()
+  local seen_files=()
+  for file in "${found_files[@]}"; do
+    if [[ ! " ${seen_files[@]} " =~ " ${file} " ]]; then
+      unique_files+=("$file")
+      seen_files+=("$file")
+    fi
+  done
+  found_files=("${unique_files[@]}")
   
   case ${#found_files[@]} in
     0)
@@ -294,10 +315,11 @@ function znvim() {
       echo "📝 Multiple files matching '$query' found:"
       local choice
       # Use bat for preview if available, otherwise use cat
+      # Note: {} in fzf preview is automatically quoted, but we ensure it's handled correctly
       if command -v bat >/dev/null 2>&1; then
-        choice=$(printf '%s\n' "${found_files[@]}" | fzf --prompt="Select file to edit: " --preview="bat --color=always --style=header,grid --line-range :50 {}")
+        choice=$(printf '%s\n' "${found_files[@]}" | fzf --prompt="Select file to edit: " --preview="bat --color=always --style=header,grid --line-range :50 '{}'")
       else
-        choice=$(printf '%s\n' "${found_files[@]}" | fzf --prompt="Select file to edit: " --preview="head -50 {}")
+        choice=$(printf '%s\n' "${found_files[@]}" | fzf --prompt="Select file to edit: " --preview="head -50 '{}'")
       fi
       if [ -n "$choice" ]; then
         echo "📝 Opening: $choice"
