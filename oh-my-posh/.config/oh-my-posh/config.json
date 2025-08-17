@@ -82,7 +82,7 @@
   "transient_prompt": {
     "background": "transparent",
     "foreground": "p:catppuccin-blue",
-    "template": "\n❯ "
+    "template": "❯ "
   },
   "final_space": true,
   "console_title_template": "{{ .Shell }} in {{ .Folder }}",

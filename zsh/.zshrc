@@ -135,10 +135,10 @@ if command -v oh-my-posh >/dev/null 2>&1; then
   enable_poshtransientprompt
 fi
 
-# Add spacing before each prompt
-precmd() {
-  echo
-}
+# Add spacing before each prompt (disabled)
+# precmd() {
+#   echo
+# }
 
 # Initialize Starship prompt
 # if command -v starship >/dev/null 2>&1; then

@@ -20,6 +20,11 @@ vim.opt.cursorline = true       -- Highlight current line
 vim.keymap.set('v', 'y', '"+y', { desc = 'Yank to system clipboard' })
 vim.keymap.set('v', 'Y', '"+Y', { desc = 'Yank line to system clipboard' })
 
+-- Auto-copy mouse selections to clipboard
+vim.opt.clipboard:append("unnamedplus")
+vim.keymap.set('v', '<LeftRelease>', '"+y<LeftRelease>', { desc = 'Copy mouse selection to clipboard' })
+vim.keymap.set('v', '<2-LeftMouse>', '"+y<2-LeftMouse>', { desc = 'Copy double-click selection to clipboard' })
+
 -- File operations
 vim.keymap.set('n', '<leader>w', ':w<CR>', { desc = 'Save file' })
 vim.keymap.set('n', '<leader>q', ':q<CR>', { desc = 'Quit' })
