@@ -128,6 +128,12 @@ source "$HOME/dotfiles/shell/functions/index-config.zsh"
 # Bun completions
 [ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 
+# Enable tab completion for hidden files/directories
+setopt globdots
+
+# Hide . and .. from tab completion
+zstyle ':completion:*' special-dirs false
+
 # Initialize Oh-My-Posh with transient prompt for clean history
 if command -v oh-my-posh >/dev/null 2>&1; then
   eval "$(oh-my-posh init zsh --config ~/.config/oh-my-posh/config.json)"
