@@ -49,6 +49,9 @@ export EDITOR=nvim
 export TERM=xterm-256color
 export LS_COLORS="$LS_COLORS:ow=01;36:tw=01;34:"
 
+# Dotfiles management with bare git repository
+alias dot='/usr/bin/git --git-dir=$HOME/.dotfiles.git/ --work-tree=$HOME'
+
 # Aliases
 alias ll='ls -lah --color=auto'
 alias la='ls -A'
