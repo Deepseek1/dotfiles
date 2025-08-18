@@ -5,7 +5,7 @@ Personal development environment configuration files managed with **bare git rep
 ## Quick Install
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Deepseek1/dotfiles/main/dotfiles/bootstrap-bare.sh | bash
+curl -fsSL https://raw.githubusercontent.com/Deepseek1/dotfiles/master/dotfiles/bootstrap-bare.sh | bash
 ```
 
 This will:
