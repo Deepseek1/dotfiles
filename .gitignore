@@ -13,3 +13,4 @@ oh-my-zsh/.oh-my-zsh/*
 !oh-my-zsh/.oh-my-zsh/custom/**
 oh-my-zsh/.oh-my-zsh/custom/plugins/
 oh-my-zsh/.oh-my-zsh/custom/cache/
+tmux/.config/tmux/plugins/
