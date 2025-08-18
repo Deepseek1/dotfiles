@@ -83,7 +83,7 @@ To update your dotfiles on another machine:
 ```bash
 cd ~/dotfiles
 git pull
-stow -R -t "$HOME" zsh tmux git nvim starship shell
+stow -R -t "$HOME" zsh tmux git nvim shell kitty oh-my-posh eza
 ```
 
 ## Customization
@@ -132,7 +132,7 @@ If stow reports conflicts, remove the existing files first:
 ```bash
 rm ~/.zshrc ~/.tmux.conf  # etc
 cd ~/dotfiles
-stow -t "$HOME" zsh tmux git nvim starship shell
+stow -t "$HOME" zsh tmux git nvim shell kitty oh-my-posh eza
 ```
 
 ### Missing Plugins

@@ -65,21 +65,21 @@ install_pkgs() {
     if [ "$FULL_INSTALL" = 1 ]; then
       # Install ALL the packages we have in Dockerfile
       if   command -v apt    >/dev/null 2>&1; then 
-        PKGS_DEV="tmux tree gh openssh-client less file ripgrep fd-find build-essential neovim procps htop jq python3 python3-pip fzf bat exa zoxide"
+        PKGS_DEV="tmux tree gh openssh-client less file ripgrep fd-find build-essential neovim procps htop jq python3 python3-pip fzf bat eza zoxide"
         $CMD_PREFIX apt update && $CMD_PREFIX apt install -y $PKGS_CORE $PKGS_DEV
         # Fix fd name on Debian/Ubuntu
         [ -f /usr/bin/fdfind ] && $CMD_PREFIX ln -sf /usr/bin/fdfind /usr/local/bin/fd
         
       elif command -v dnf    >/dev/null 2>&1; then 
-        PKGS_DEV="tmux tree gh openssh-clients less file ripgrep fd-find gcc make neovim procps-ng htop jq python3 python3-pip fzf bat exa zoxide"
+        PKGS_DEV="tmux tree gh openssh-clients less file ripgrep fd-find gcc make neovim procps-ng htop jq python3 python3-pip fzf bat eza zoxide"
         $CMD_PREFIX dnf install -y $PKGS_CORE $PKGS_DEV
         
       elif command -v pacman >/dev/null 2>&1; then 
-        PKGS_DEV="tmux tree github-cli openssh less file ripgrep fd base-devel neovim procps-ng htop jq python python-pip fzf bat exa zoxide"
+        PKGS_DEV="tmux tree github-cli openssh less file ripgrep fd base-devel neovim procps-ng htop jq python python-pip fzf bat eza zoxide"
         $CMD_PREFIX pacman -Sy --needed $PKGS_CORE $PKGS_DEV
         
       elif command -v zypper >/dev/null 2>&1; then 
-        PKGS_DEV="tmux tree gh openssh less file ripgrep fd gcc make neovim procps htop jq python3 python3-pip fzf bat exa zoxide"
+        PKGS_DEV="tmux tree gh openssh less file ripgrep fd gcc make neovim procps htop jq python3 python3-pip fzf bat eza zoxide"
         $CMD_PREFIX zypper --non-interactive in $PKGS_CORE $PKGS_DEV
       else
         say "No supported package manager. Install packages manually."
@@ -128,7 +128,7 @@ fi
 # This ensures OUR configs are in place first
 cd "$DEST"
 PKGS=""
-for d in zsh tmux git nvim shell kitty oh-my-posh; do 
+for d in zsh tmux git nvim shell kitty oh-my-posh eza; do 
   if [ -d "$d" ]; then
     PKGS="$PKGS $d"
   fi
@@ -178,12 +178,9 @@ if [ "$INSTALL_OHMYPOSH" = 1 ] && ! command -v oh-my-posh >/dev/null 2>&1; then
     # Running as root (like in Docker containers)
     # Install directly without sudo
     curl -s https://ohmyposh.dev/install.sh | bash -s -- -d /usr/local/bin
-  elif command -v sudo >/dev/null 2>&1; then
-    # Not root but have sudo - use it
-    curl -s https://ohmyposh.dev/install.sh | sudo bash -s
   else
-    # No root, no sudo - install to user directory
-    say "Installing oh-my-posh to ~/.local/bin (no sudo available)"
+    # Install to user directory (preferred for regular users)
+    say "Installing oh-my-posh to ~/.local/bin"
     mkdir -p "$HOME/.local/bin"
     curl -s https://ohmyposh.dev/install.sh | bash -s -- -d "$HOME/.local/bin"
     
@@ -202,9 +199,10 @@ if command -v nvim >/dev/null 2>&1 && [ -d "$HOME/.config/nvim" ]; then
 fi
 
 # 7.1) Install TPM (Tmux Plugin Manager)
-if command -v tmux >/dev/null 2>&1 && [ ! -d "$HOME/.tmux/plugins/tpm" ]; then
+if command -v tmux >/dev/null 2>&1 && [ ! -d "$HOME/.config/tmux/plugins/tpm" ]; then
   say "Installing TPM (Tmux Plugin Manager)..."
-  git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"
+  mkdir -p "$HOME/.config/tmux/plugins"
+  git clone https://github.com/tmux-plugins/tpm "$HOME/.config/tmux/plugins/tpm"
 fi
 
 # 7.5) Install NVM (Node Version Manager)
