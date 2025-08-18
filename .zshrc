@@ -119,10 +119,10 @@ bindkey '^Xs' sudo-command-line    # Ctrl+X then S (always works on macOS)
 [ -f ~/.rm-safety.sh ] && source ~/.rm-safety.sh
 
 # Load shell functions
-source "$HOME/dotfiles/shell/functions/dotfiles-check.zsh"
-source "$HOME/dotfiles/shell/functions/fuzzy-listing.zsh" 
-source "$HOME/dotfiles/shell/functions/fuzzy-nvim.zsh"
-source "$HOME/dotfiles/shell/functions/index-config.zsh"
+source "$HOME/functions/dotfiles-check.zsh"
+source "$HOME/functions/fuzzy-listing.zsh" 
+source "$HOME/functions/fuzzy-nvim.zsh"
+source "$HOME/functions/index-config.zsh"
 
 # Add the dotfiles check as a precmd hook (disabled for performance)
 # autoload -Uz add-zsh-hook
