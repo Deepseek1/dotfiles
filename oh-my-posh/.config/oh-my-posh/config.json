@@ -84,7 +84,7 @@
     "foreground": "p:catppuccin-blue",
     "template": "❯ "
   },
-  "final_space": true,
+  "final_space": false,
   "console_title_template": "{{ .Shell }} in {{ .Folder }}",
   "disable_notice": true,
   "version": 3
