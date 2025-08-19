@@ -222,31 +222,18 @@ if [ ! -f "$HOME/.termux/font.ttf" ]; then
   cd "$DEST"
 fi
 
-# 10) Create a shell switching script since chsh is not available in Termux
+# 10) Set zsh as default shell using Termux's proper method
 if command -v zsh >/dev/null 2>&1; then
-  say "Creating zsh launcher script..."
-  cat > "$HOME/.switch-to-zsh" << 'EOF'
-#!/data/data/com.termux/files/usr/bin/bash
-# Launch zsh as default shell in Termux
-# Add this to your .bashrc: [ -f ~/.switch-to-zsh ] && exec ~/.switch-to-zsh
-if [ "$SHELL" != "$(command -v zsh)" ]; then
-  export SHELL="$(command -v zsh)"
-  exec zsh
-fi
-EOF
-  chmod +x "$HOME/.switch-to-zsh"
+  ZSH_PATH="$(command -v zsh)"
   
-  # Create .bashrc if it doesn't exist and add zsh auto-switch
-  if [ ! -f "$HOME/.bashrc" ]; then
-    say "Creating .bashrc with zsh auto-switch..."
-    cat > "$HOME/.bashrc" << 'EOF'
-# Auto-switch to zsh
-[ -f ~/.switch-to-zsh ] && exec ~/.switch-to-zsh
-EOF
-  elif ! grep -q ".switch-to-zsh" "$HOME/.bashrc"; then
-    echo '# Auto-switch to zsh' >> "$HOME/.bashrc"
-    echo '[ -f ~/.switch-to-zsh ] && exec ~/.switch-to-zsh' >> "$HOME/.bashrc"
-    say "Added zsh auto-switch to existing .bashrc"
+  # Check if zsh is already the default shell
+  if [ ! -L "$HOME/.termux/shell" ] || [ "$(readlink "$HOME/.termux/shell")" != "$ZSH_PATH" ]; then
+    say "Setting zsh as default shell via ~/.termux/shell symlink..."
+    mkdir -p "$HOME/.termux"
+    ln -sf "$ZSH_PATH" "$HOME/.termux/shell"
+    say "Zsh set as default shell. New Termux sessions will use zsh."
+  else
+    say "Zsh is already set as the default shell."
   fi
 fi
 
