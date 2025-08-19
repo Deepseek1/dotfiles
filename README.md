@@ -8,18 +8,29 @@ Personal development environment configuration files managed with GNU Stow.
 curl -fsSL https://raw.githubusercontent.com/Deepseek1/dotfiles/main/bootstrap.sh | bash
 ```
 
+### Termux (Android)
+
+For Termux on Android devices:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Deepseek1/dotfiles/main/bootstrap-android.sh | bash
+```
+
 This will:
-- Install all required packages (git, stow, zsh, neovim, tmux, etc.)
-- Install latest stable Neovim from GitHub
+- Install all required packages using `pkg` (Termux package manager)
+- Set up Android storage access
 - Clone this repository to `~/dotfiles`
 - Create symlinks using GNU Stow
 - Install oh-my-zsh with plugins (autosuggestions, syntax-highlighting, completions)
-- Install Starship prompt
-- Configure zsh as default shell
+- Install oh-my-posh prompt
+- Create zsh launcher script (since `chsh` is not available)
+- Configure Termux-specific optimizations
 
 ## Manual Installation
 
 If you prefer to see what's happening:
+
+### Linux/macOS
 
 ```bash
 # Download the bootstrap script
@@ -30,6 +41,19 @@ cat bootstrap.sh
 
 # Run it
 bash bootstrap.sh
+```
+
+### Termux (Android)
+
+```bash
+# Download the Termux bootstrap script
+curl -fsSL https://raw.githubusercontent.com/Deepseek1/dotfiles/main/bootstrap-android.sh > bootstrap-android.sh
+
+# Review it
+cat bootstrap-android.sh
+
+# Run it
+bash bootstrap-android.sh
 ```
 
 ## What's Included
@@ -155,6 +179,7 @@ nvim --headless "+Lazy! sync" +qa
 
 - Linux (Debian/Ubuntu, Fedora/RHEL, Arch, openSUSE)
 - macOS (with Homebrew)
+- Termux (Android)
 - Docker containers
 - Unraid (via Docker container)
 
