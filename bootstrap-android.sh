@@ -225,11 +225,17 @@ fi
 EOF
   chmod +x "$HOME/.switch-to-zsh"
   
-  # Add to .bashrc if it exists and doesn't already contain the launcher
-  if [ -f "$HOME/.bashrc" ] && ! grep -q ".switch-to-zsh" "$HOME/.bashrc"; then
+  # Create .bashrc if it doesn't exist and add zsh auto-switch
+  if [ ! -f "$HOME/.bashrc" ]; then
+    say "Creating .bashrc with zsh auto-switch..."
+    cat > "$HOME/.bashrc" << 'EOF'
+# Auto-switch to zsh
+[ -f ~/.switch-to-zsh ] && exec ~/.switch-to-zsh
+EOF
+  elif ! grep -q ".switch-to-zsh" "$HOME/.bashrc"; then
     echo '# Auto-switch to zsh' >> "$HOME/.bashrc"
     echo '[ -f ~/.switch-to-zsh ] && exec ~/.switch-to-zsh' >> "$HOME/.bashrc"
-    say "Added zsh auto-switch to .bashrc"
+    say "Added zsh auto-switch to existing .bashrc"
   fi
 fi
 
