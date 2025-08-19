@@ -28,7 +28,7 @@ fi
 
 # 1) Install packages using pkg (Termux package manager)
 install_pkgs() {
-  local PKGS_CORE="git stow curl wget"
+  local PKGS_CORE="git stow curl wget unzip"
   local PKGS_DEV=""
   
   say "Updating package lists..."
@@ -53,7 +53,7 @@ if [ "$FULL_INSTALL" = 1 ]; then
     command -v "$c" >/dev/null 2>&1 || need=1
   done
 else
-  for c in git stow curl wget; do 
+  for c in git stow curl wget unzip; do 
     command -v "$c" >/dev/null 2>&1 || need=1
   done
 fi
@@ -168,7 +168,52 @@ if [ "$FULL_INSTALL" = 1 ] && [ ! -d "$HOME/.nvm" ] && ! command -v node >/dev/n
   nvm use --lts
 fi
 
-# 9) Create a shell switching script since chsh is not available in Termux
+# 9) Install Nerd Fonts for icons in prompt and terminal
+say "Installing Nerd Fonts for better icon support..."
+mkdir -p "$HOME/.termux"
+
+# Download and install Hack Nerd Font (popular choice for terminals)
+if [ ! -f "$HOME/.termux/font.ttf" ]; then
+  say "Downloading Hack Nerd Font..."
+  cd "$HOME/.termux"
+  curl -fLo "hack-font.zip" "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Hack.zip"
+  
+  if [ -f "hack-font.zip" ]; then
+    # Extract and install font
+    mkdir -p temp-fonts
+    cd temp-fonts
+    unzip -q ../hack-font.zip
+    
+    # Find the regular variant and copy as font.ttf
+    if [ -f "HackNerdFont-Regular.ttf" ]; then
+      cp "HackNerdFont-Regular.ttf" "../font.ttf"
+    elif [ -f "Hack Regular Nerd Font Complete.ttf" ]; then
+      cp "Hack Regular Nerd Font Complete.ttf" "../font.ttf"
+    else
+      # Use the first .ttf file found
+      FIRST_TTF=$(find . -name "*.ttf" | head -1)
+      if [ -n "$FIRST_TTF" ]; then
+        cp "$FIRST_TTF" "../font.ttf"
+      fi
+    fi
+    
+    # Cleanup
+    cd ..
+    rm -rf temp-fonts hack-font.zip
+    
+    if [ -f "font.ttf" ]; then
+      say "Nerd Font installed successfully. Restart Termux to see the changes."
+    else
+      say "Warning: Could not install Nerd Font. You may need to install manually."
+    fi
+  else
+    say "Warning: Could not download Nerd Font. You may need to install manually."
+  fi
+  
+  cd "$DEST"
+fi
+
+# 10) Create a shell switching script since chsh is not available in Termux
 if command -v zsh >/dev/null 2>&1; then
   say "Creating zsh launcher script..."
   cat > "$HOME/.switch-to-zsh" << 'EOF'
@@ -190,7 +235,7 @@ EOF
   fi
 fi
 
-# 10) Termux-specific optimizations
+# 11) Termux-specific optimizations
 say "Applying Termux-specific optimizations..."
 
 # Enable hardware keyboard support
