@@ -172,42 +172,40 @@ fi
 say "Installing Nerd Fonts for better icon support..."
 mkdir -p "$HOME/.termux"
 
-# Download and install Hack Nerd Font (popular choice for terminals)
+# Download and install JetBrainsMono Nerd Font (reliable choice for terminals)
 if [ ! -f "$HOME/.termux/font.ttf" ]; then
-  say "Downloading Hack Nerd Font..."
+  say "Downloading JetBrainsMono Nerd Font..."
   cd "$HOME/.termux"
-  curl -fLo "hack-font.zip" "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Hack.zip"
+  curl -fLO "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.1.1/JetBrainsMono.zip"
   
-  if [ -f "hack-font.zip" ]; then
-    # Extract and install font
-    mkdir -p temp-fonts
-    cd temp-fonts
-    unzip -q ../hack-font.zip
+  if [ -f "JetBrainsMono.zip" ]; then
+    # Extract and install font with overwrite
+    unzip -o JetBrainsMono.zip
     
-    # Find the regular variant and copy as font.ttf
-    if [ -f "HackNerdFont-Regular.ttf" ]; then
-      cp "HackNerdFont-Regular.ttf" "../font.ttf"
-    elif [ -f "Hack Regular Nerd Font Complete.ttf" ]; then
-      cp "Hack Regular Nerd Font Complete.ttf" "../font.ttf"
-    else
-      # Use the first .ttf file found
-      FIRST_TTF=$(find . -name "*.ttf" | head -1)
-      if [ -n "$FIRST_TTF" ]; then
-        cp "$FIRST_TTF" "../font.ttf"
+    # Copy the regular variant as font.ttf
+    if [ -f "JetBrainsMonoNerdFont-Regular.ttf" ]; then
+      cp "JetBrainsMonoNerdFont-Regular.ttf" "font.ttf"
+      
+      # Cleanup zip and other font files (keep font.ttf)
+      rm -f JetBrainsMono.zip
+      find . -name "*.ttf" -not -name "font.ttf" -delete 2>/dev/null || true
+      find . -name "*.otf" -delete 2>/dev/null || true
+      
+      say "Nerd Font installed successfully."
+      
+      # Reload Termux settings if command exists
+      if command -v termux-reload-settings >/dev/null 2>&1; then
+        say "Reloading Termux settings..."
+        termux-reload-settings
+      else
+        say "Please restart Termux to apply the new font."
       fi
-    fi
-    
-    # Cleanup
-    cd ..
-    rm -rf temp-fonts hack-font.zip
-    
-    if [ -f "font.ttf" ]; then
-      say "Nerd Font installed successfully. Restart Termux to see the changes."
     else
-      say "Warning: Could not install Nerd Font. You may need to install manually."
+      say "Warning: Could not find JetBrainsMonoNerdFont-Regular.ttf. Manual installation may be needed."
+      rm -f *.zip 2>/dev/null || true
     fi
   else
-    say "Warning: Could not download Nerd Font. You may need to install manually."
+    say "Warning: Could not download JetBrainsMono Nerd Font."
   fi
   
   cd "$DEST"
