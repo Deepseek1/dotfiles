@@ -123,20 +123,31 @@ if [ "$INSTALL_OHMYPOSH" = 1 ] && ! command -v oh-my-posh >/dev/null 2>&1; then
   # Create local bin directory
   mkdir -p "$HOME/.local/bin"
   
-  # Download and install oh-my-posh binary for Android ARM64
+  # Download and install oh-my-posh binary directly for Android ARM64
   if [ "$(uname -m)" = "aarch64" ]; then
-    ARCH="arm64"
+    ARCH="linux-arm64"
   else
-    ARCH="arm"
+    ARCH="linux-arm"
   fi
   
   say "Downloading oh-my-posh for Android ($ARCH)..."
-  curl -s https://ohmyposh.dev/install.sh | bash -s -- -d "$HOME/.local/bin"
+  curl -fL "https://github.com/JanDeDobbeleer/oh-my-posh/releases/latest/download/posh-$ARCH" -o "$HOME/.local/bin/oh-my-posh"
+  chmod +x "$HOME/.local/bin/oh-my-posh"
   
-  # Add to PATH if not already there
-  if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
-    export PATH="$HOME/.local/bin:$PATH"
-    say "Added ~/.local/bin to PATH"
+  # Add to PATH in shell configs
+  for shell_rc in "$HOME/.zshrc" "$HOME/.bashrc"; do
+    if [ -f "$shell_rc" ] && ! grep -q ".local/bin" "$shell_rc"; then
+      echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$shell_rc"
+    fi
+  done
+  
+  # Add to current session PATH
+  export PATH="$HOME/.local/bin:$PATH"
+  
+  if command -v oh-my-posh >/dev/null 2>&1; then
+    say "oh-my-posh installed successfully"
+  else
+    say "Warning: oh-my-posh installation may have failed"
   fi
 fi
 
