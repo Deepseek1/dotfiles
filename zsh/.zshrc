@@ -99,14 +99,7 @@ export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border'
 bindkey -M emacs '^[[A' history-substring-search-up
 bindkey -M emacs '^[[B' history-substring-search-down
 
-# Sudo from Alt+s (and Ctrl+X+S for macOS compatibility)
-zle -N sudo-command-line
-sudo-command-line() { 
-    zle beginning-of-line
-    LBUFFER="sudo $LBUFFER"
-}
-bindkey '^[s' sudo-command-line    # Alt+S (if Meta key enabled)
-bindkey '^Xs' sudo-command-line    # Ctrl+X then S (always works on macOS)
+# Note: ESC ESC for sudo is provided by oh-my-zsh sudo plugin
 
 # Load custom functions and utilities
 # - rm-safety.sh: Safe rm command with trash functionality
@@ -166,4 +159,5 @@ zsh-bench() {
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
 
