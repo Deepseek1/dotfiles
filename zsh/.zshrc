@@ -1,3 +1,6 @@
+# MUST be set BEFORE oh-my-zsh loads to prevent title changes
+#DISABLE_AUTO_TITLE="true"
+
 # Core oh-my-zsh setup
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="robbyrussell"
@@ -43,6 +46,9 @@ fi
 
 # Source oh-my-zsh
 source "$ZSH/oh-my-zsh.sh"
+
+# Nuclear option: completely disable oh-my-zsh title function (disabled)
+# unset -f title 2>/dev/null || true
 
 # Editor and terminal settings
 export EDITOR=nvim
