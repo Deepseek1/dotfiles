@@ -57,6 +57,7 @@ alias ccusage='bunx --bun ccusage'
 alias dotpush='cd ~/dotfiles && git add -u && git commit -m "Update configs" && git push && cd -'
 alias vim='nvim'              # Use neovim instead of vim
 alias zvim='znvim'            # Shorter alias for fuzzy nvim
+alias mg='ssh unraid -t "docker exec -it --user hugo trixie-mgmt zsh"'
 # fd/fdfind compatibility (Ubuntu/Debian use fdfind)
 if command -v fdfind >/dev/null 2>&1 && ! command -v fd >/dev/null 2>&1; then
   alias fd=fdfind
@@ -64,6 +65,8 @@ fi
 
 # Modern tool aliases (if available)
 if command -v eza >/dev/null 2>&1; then
+  # Use ~/.config/eza instead of ~/Library/Application Support/eza on macOS
+  export EZA_CONFIG_DIR="$HOME/.config/eza"
   # Colorful eza setup
   export EXA_COLORS="di=1;36:ln=1;35:so=1;32:pi=1;33:ex=1;31:bd=1;34:cd=1;33:su=1;41:sg=1;46:tw=1;42:ow=1;43"
   alias ls='eza --icons --color=always --group-directories-first'
@@ -71,7 +74,7 @@ if command -v eza >/dev/null 2>&1; then
   alias la='eza -la --icons --color=always --group-directories-first --git'
   alias lt='eza --tree --icons --color=always --level=2'
 fi
-command -v bat >/dev/null 2>&1 && export BAT_THEME="gruvbox-dark" && alias cat='bat --style=numbers'
+command -v bat >/dev/null 2>&1 && export BAT_THEME="Catppuccin-mocha" && alias cat='bat'
 # Initialize zoxide normally (lazy loading was causing issues)
 if command -v zoxide >/dev/null 2>&1; then
   eval "$(zoxide init zsh)"
