@@ -1,0 +1,25 @@
+# Bat configuration
+# Set theme to Catppuccin Mocha (matches your tmux/nvim theme)
+--theme="Catppuccin-mocha"
+
+# Show line numbers
+--style="numbers,changes,header"
+
+# Use italic text on the terminal (not supported on all terminals)
+--italic-text=always
+
+# Add mouse scrolling support in less
+--pager="less -FR"
+
+# Show non-printable characters like space, tab, etc. (disabled to avoid conflicts)
+# --show-all
+
+# Set the terminal width (0 = auto-detect)
+--wrap=auto
+
+# Map file extensions to languages for better syntax highlighting
+--map-syntax "*.conf:INI"
+--map-syntax "*.env:Bash"
+--map-syntax "Dockerfile*:Dockerfile"
+--map-syntax "docker-compose*.yml:YAML"
+--map-syntax "docker-compose*.yaml:YAML"

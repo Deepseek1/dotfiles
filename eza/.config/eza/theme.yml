@@ -33,14 +33,14 @@ filekinds:
 
 perms:
   user_read: {foreground: "#908caa"}
-  user_write: {foreground: "#44415a"}
+  user_write: {foreground: "#6e6a86"}
   user_execute_file: {foreground: "#c4a7e7"}
   user_execute_other: {foreground: "#c4a7e7"}
   group_read: {foreground: "#908caa"}
-  group_write: {foreground: "#44415a"}
+  group_write: {foreground: "#6e6a86"}
   group_execute: {foreground: "#c4a7e7"}
   other_read: {foreground: "#908caa"}
-  other_write: {foreground: "#44415a"}
+  other_write: {foreground: "#908caa"}
   other_execute: {foreground: "#c4a7e7"}
   special_user_file: {foreground: "#c4a7e7"}
   special_other: {foreground: "#44415a"}
@@ -119,3 +119,4 @@ symlink_path: {foreground: "#9ccfd8"}
 control_char: {foreground: "#3e8fb0"}
 broken_symlink: {foreground: "#eb6f92"}
 broken_path_overlay: {foreground: "#56526e"}
+

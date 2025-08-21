@@ -128,7 +128,7 @@ fi
 # This ensures OUR configs are in place first
 cd "$DEST"
 PKGS=""
-for d in zsh tmux git nvim shell kitty oh-my-posh eza yazi; do 
+for d in zsh tmux git nvim shell kitty oh-my-posh eza yazi bat; do 
   if [ -d "$d" ]; then
     PKGS="$PKGS $d"
   fi

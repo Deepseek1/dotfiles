@@ -62,6 +62,7 @@ bash bootstrap-android.sh
 - **nvim** - Neovim configuration with Lazy.nvim and plugins
 - **tmux** - Terminal multiplexer configuration  
 - **git** - Git configuration and aliases
+- **bat** - Syntax highlighting with Catppuccin themes
 - **starship** - Cross-shell prompt
 - **shell** - Additional shell utilities (rm-safety)
 

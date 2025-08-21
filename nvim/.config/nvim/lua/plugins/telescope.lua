@@ -17,7 +17,13 @@ return {
     opts = {
       defaults = {
         path_display = { "smart" },
-        file_ignore_patterns = { "%.git/", "node_modules/", "dist/" },
+        file_ignore_patterns = { 
+          "%.git/", "node_modules/", "dist/", "build/", "target/",
+          "Library/", "%.cache/", "%.npm/", "%.local/share/",
+          "Desktop/", "Downloads/", "Movies/", "Music/", "Pictures/", "Public/",
+          "%.DS_Store", "%.Trash/", "%.vscode/", "%.idea/",
+          "Applications/", "Documents/", "%.docker/", "%.oh%-my%-zsh/"
+        },
         vimgrep_arguments = {
           "rg", "--color=never", "--no-heading", "--with-filename",
           "--line-number", "--column", "--smart-case",
