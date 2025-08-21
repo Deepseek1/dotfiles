@@ -55,8 +55,8 @@ alias la='ls -A'
 alias gpt='chatgpt'
 alias ccusage='bunx --bun ccusage'
 alias dotpush='cd ~/dotfiles && git add -u && git commit -m "Update configs" && git push && cd -'
-alias vim='nvim'              # Use neovim instead of vim
-alias zvim='znvim'            # Shorter alias for fuzzy nvim
+alias v='nvim'              # Use neovim instead of vim
+alias zv='znvim'            # Shorter alias for fuzzy nvim
 alias mg='ssh unraid -t "docker exec -it --user hugo trixie-mgmt zsh"'
 # fd/fdfind compatibility (Ubuntu/Debian use fdfind)
 if command -v fdfind >/dev/null 2>&1 && ! command -v fd >/dev/null 2>&1; then
