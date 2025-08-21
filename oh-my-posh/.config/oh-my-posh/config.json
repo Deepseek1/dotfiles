@@ -23,14 +23,14 @@
           "template": "{{ if .WSL }}WSL at{{ end }} {{.Icon}} ",
           "type": "os"
         },
-        // {
-        //   "background": "p:catppuccin-surface-bright",
-        //   "foreground": "p:catppuccin-white",
-        //   "powerline_symbol": "\ue0b0",
-        //   "style": "powerline",
-        //   "template": " {{ .UserName }}@{{ .HostName }} ",
-        //   "type": "session"
-        // },
+        {
+          "background": "p:catppuccin-surface-bright",
+          "foreground": "p:catppuccin-white",
+          "powerline_symbol": "\ue0b0",
+          "style": "powerline",
+          "template": " {{ .UserName }}@{{ .HostName }} ",
+          "type": "session"
+        },
         {
           "background": "p:catppuccin-blue",
           "foreground": "p:catppuccin-bg",
