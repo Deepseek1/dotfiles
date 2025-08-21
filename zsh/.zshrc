@@ -58,6 +58,19 @@ alias dotpush='cd ~/dotfiles && git add -u && git commit -m "Update configs" && 
 alias v='nvim'              # Use neovim instead of vim
 alias zv='znvim'            # Shorter alias for fuzzy nvim
 alias mg='ssh unraid -t "docker exec -it --user hugo trixie-mgmt zsh"'
+alias fix-terminal='reset; stty sane; echo -e "\033c"'  # Fix corrupted terminal
+
+# Terminal cleanup function - prevents garbage output after SSH disconnects
+cleanup_terminal() {
+  # Disable mouse reporting that can get stuck after SSH disconnections
+  printf '\033[?1000l\033[?1002l\033[?1003l\033[?1006l'
+  # Restore normal terminal settings
+  stty sane 2>/dev/null || true
+}
+
+# Auto-cleanup on shell exit or interruption
+trap cleanup_terminal EXIT INT TERM
+
 # fd/fdfind compatibility (Ubuntu/Debian use fdfind)
 if command -v fdfind >/dev/null 2>&1 && ! command -v fd >/dev/null 2>&1; then
   alias fd=fdfind
