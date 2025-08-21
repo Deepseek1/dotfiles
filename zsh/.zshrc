@@ -50,6 +50,7 @@ export TERM=xterm-256color
 export LS_COLORS="$LS_COLORS:ow=01;36:tw=01;34:"
 
 # Aliases
+alias c='clear'
 alias ll='ls -lah --color=auto'
 alias la='ls -A'
 alias gpt='chatgpt'
