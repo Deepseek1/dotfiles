@@ -68,8 +68,8 @@ cleanup_terminal() {
   stty sane 2>/dev/null || true
 }
 
-# Auto-cleanup on shell exit or interruption
-trap cleanup_terminal EXIT INT TERM
+# Auto-cleanup on shell exit (but not on Ctrl+C interruption)
+trap cleanup_terminal EXIT TERM
 
 # fd/fdfind compatibility (Ubuntu/Debian use fdfind)
 if command -v fdfind >/dev/null 2>&1 && ! command -v fd >/dev/null 2>&1; then
