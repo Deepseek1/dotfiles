@@ -205,6 +205,12 @@ if command -v tmux >/dev/null 2>&1 && [ ! -d "$HOME/.config/tmux/plugins/tpm" ];
   git clone https://github.com/tmux-plugins/tpm "$HOME/.config/tmux/plugins/tpm"
 fi
 
+# 7.2) Build bat theme cache
+if command -v bat >/dev/null 2>&1 && [ -d "$HOME/.config/bat/themes" ]; then
+  say "Building bat theme cache..."
+  bat cache --build >/dev/null 2>&1 || true
+fi
+
 # 7.5) Install NVM (Node Version Manager)
 if [ "$FULL_INSTALL" = 1 ] && [ ! -d "$HOME/.nvm" ]; then
   say "Installing NVM (Node Version Manager)..."

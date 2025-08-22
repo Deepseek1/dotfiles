@@ -169,8 +169,10 @@ fi
 
 # SSH agent with 8-hour timeout
 [ -f ~/.ssh/environment ] && source ~/.ssh/environment
-if ! pgrep -u "$USER" ssh-agent >/dev/null && [ -f ~/.ssh/id_ed25519 ]; then
-  ssh-agent -t 28800 > ~/.ssh/environment && source ~/.ssh/environment && ssh-add ~/.ssh/id_ed25519
+if command -v pgrep >/dev/null 2>&1 && [ -f ~/.ssh/id_ed25519 ]; then
+  if ! pgrep -u "$USER" ssh-agent >/dev/null 2>&1; then
+    ssh-agent -t 28800 > ~/.ssh/environment && source ~/.ssh/environment && ssh-add ~/.ssh/id_ed25519 2>/dev/null
+  fi
 fi
 
 # Set default file permissions
