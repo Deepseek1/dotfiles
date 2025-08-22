@@ -66,6 +66,8 @@ alias v='nvim'              # Use neovim instead of vim
 alias zv='znvim'            # Shorter alias for fuzzy nvim
 alias mg='ssh unraid -t "docker exec -it --user hugo trixie-mgmt zsh"'
 alias fix-terminal='reset; stty sane; echo -e "\033c"'  # Fix corrupted terminal
+#alias claude="/home/hugo/.claude/local/claude"
+
 
 # Terminal cleanup function - prevents garbage output after SSH disconnects
 cleanup_terminal() {
