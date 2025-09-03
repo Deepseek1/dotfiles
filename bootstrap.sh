@@ -103,7 +103,7 @@ install_pkgs() {
 need=0
 if [ "$FULL_INSTALL" = 1 ]; then
   # Check for all the tools we need
-  for c in git stow zsh curl wget tmux nvim tree gh less rg fd htop jq python3 fzf bat eza zoxide yazi; do 
+  for c in git stow zsh curl wget tmux nvim tree gh less rg fd htop jq python3 fzf bat eza zoxide; do 
     # Skip tools not needed on macOS (built-in or not checked)
     if [ "$OS" = "macos" ] && [[ "$c" =~ ^(file|less|jq|python3)$ ]]; then continue; fi
     command -v "$c" >/dev/null 2>&1 || need=1
