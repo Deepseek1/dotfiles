@@ -65,7 +65,7 @@ install_pkgs() {
     if [ "$FULL_INSTALL" = 1 ]; then
       # Install ALL the packages we have in Dockerfile
       if   command -v apt    >/dev/null 2>&1; then 
-        PKGS_DEV="tmux tree gh openssh-client less file ripgrep fd-find build-essential neovim procps htop jq python3 python3-pip fzf bat eza zoxide yazi"
+        PKGS_DEV="tmux tree gh openssh-client less file ripgrep fd-find build-essential neovim procps htop jq python3 python3-pip fzf bat eza zoxide"
         $CMD_PREFIX apt update && $CMD_PREFIX apt install -y $PKGS_CORE $PKGS_DEV
         # Fix fd name on Debian/Ubuntu
         [ -f /usr/bin/fdfind ] && $CMD_PREFIX ln -sf /usr/bin/fdfind /usr/local/bin/fd
