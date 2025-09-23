@@ -156,7 +156,6 @@ zstyle ':completion:*' special-dirs false
 if command -v oh-my-posh >/dev/null 2>&1; then
   eval "$(oh-my-posh init zsh --config ~/.config/oh-my-posh/config.json)"
   # Enable transient prompt to minimize previous prompts
-  enable_poshtransientprompt
 fi
 
 # Add spacing before each prompt (disabled)
