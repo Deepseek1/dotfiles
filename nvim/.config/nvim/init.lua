@@ -24,33 +24,22 @@ vim.keymap.set('v', 'Y', '"+Y', { desc = 'Yank line to system clipboard' })
 vim.keymap.set({'n', 'v'}, '<leader>y', '"+y', { desc = 'Yank to clipboard' })
 vim.keymap.set('n', '<leader>Y', '"+Y', { desc = 'Yank line to clipboard' })
 
--- Auto-copy mouse selections to clipboard
-vim.opt.clipboard:append("unnamedplus")
+-- Note: clipboard provider is set below using OSC 52
 vim.keymap.set('v', '<LeftRelease>', '"+y<LeftRelease>', { desc = 'Copy mouse selection to clipboard' })
 vim.keymap.set('v', '<2-LeftMouse>', '"+y<2-LeftMouse>', { desc = 'Copy double-click selection to clipboard' })
 
--- File operations
-vim.keymap.set('n', '<leader>w', ':w<CR>', { desc = 'Save file' })
-vim.keymap.set('n', '<leader>q', ':q<CR>', { desc = 'Quit' })
-
--- Use OSC 52 if no local clipboard provider is available
-local os_name = vim.loop.os_uname().sysname
-
-if os_name == "Darwin" then
-  vim.opt.clipboard = "unnamedplus"
-elseif os_name == "Linux" then
-  vim.g.clipboard = {
-    name = 'OSC 52',
-    copy = {
-      ['+'] = require('vim.ui.clipboard.osc52').copy('+'),
-      ['*'] = require('vim.ui.clipboard.osc52').copy('*'),
-    },
-    paste = {
-      ['+'] = require('vim.ui.clipboard.osc52').paste('+'),
-      ['*'] = require('vim.ui.clipboard.osc52').paste('*'),
-    },
-  }
-end
+-- Use our custom OSC 52 script for clipboard (works with tmux + mosh)
+vim.g.clipboard = {
+  name = 'OSC52',
+  copy = {
+    ['+'] = {'sh', '-c', 'cat | ~/.osc52-yank.sh'},
+    ['*'] = {'sh', '-c', 'cat | ~/.osc52-yank.sh'},
+  },
+  paste = {
+    ['+'] = {'+'},  -- OSC 52 doesn't support paste
+    ['*'] = {'*'},
+  },
+}
 
 -- --- Visual Styling ---
 -- Old styling (commented out)
