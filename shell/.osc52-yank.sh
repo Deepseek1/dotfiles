@@ -1,0 +1,17 @@
+#!/bin/sh
+# OSC 52 script that works with tmux copy-pipe
+
+# Read from stdin and encode
+encoded=$(base64 -w0 2>/dev/null || base64)
+
+# Send to all tmux clients' terminals
+if [ -n "$TMUX" ]; then
+    # Get list of clients
+    tmux list-clients -F '#{client_tty}' | while read -r tty; do
+        printf "\033Ptmux;\033\033]52;c;%s\007\033\\" "$encoded" > "$tty"
+    done
+else
+    # Not in tmux, send directly to controlling terminal
+    printf "\033]52;c;%s\a" "$encoded" > /dev/tty 2>/dev/null
+fi
+
