@@ -20,6 +20,7 @@ plugins=(
   zsh-autosuggestions
   zsh-syntax-highlighting
   fzf-tab                        # Better tab completion with fzf
+  kimi-cli
 )
 
 # PATH exports
