@@ -1,9 +1,10 @@
 # MUST be set BEFORE oh-my-zsh loads to prevent title changes
-#DISABLE_AUTO_TITLE="true"
+DISABLE_AUTO_TITLE="true"
 
 # Core oh-my-zsh setup
 export ZSH="$HOME/.oh-my-zsh"
-ZSH_THEME="robbyrussell"
+#ZSH_THEME="robbyrussell"
+# /usr/local/bin/motd-simple.sh
 
 # Plugins (keeping all for better functionality)
 plugins=(
@@ -44,7 +45,7 @@ fi
 # Consider using direnv or manual sourcing for project-specific variables
 [ -f ~/.env ] && [ -r ~/.env ] && source ~/.env
 
-
+# CORRET TAB NAMES IN KITTY
 # Source oh-my-zsh
 source "$ZSH/oh-my-zsh.sh"
 
@@ -53,7 +54,8 @@ source "$ZSH/oh-my-zsh.sh"
 
 # Editor and terminal settings
 export EDITOR=nvim
-export TERM=xterm-256color
+# Don't override TERM - let Kitty set it to xterm-kitty automatically
+# export TERM=xterm-256color
 export LS_COLORS="$LS_COLORS:ow=01;36:tw=01;34:"
 
 # Aliases
@@ -65,8 +67,9 @@ alias ccusage='bunx --bun ccusage'
 alias dotpush='cd ~/dotfiles && git add -u && git commit -m "Update configs" && git push && cd -'
 alias v='nvim'              # Use neovim instead of vim
 alias zv='znvim'            # Shorter alias for fuzzy nvim
-alias mg='ssh unraid -t "docker exec -it --user hugo trixie-mgmt zsh"'
+alias mgmt='ssh unraid -t "docker exec -it --user hugo trixie-mgmt zsh"'
 alias fix-terminal='reset; stty sane; echo -e "\033c"'  # Fix corrupted terminal
+alias mosh="MOSH_TITLE_NOPREFIX=1 mosh"
 #alias claude="/home/hugo/.claude/local/claude"
 
 
@@ -80,6 +83,14 @@ cleanup_terminal() {
 
 # Auto-cleanup on shell exit (but not on Ctrl+C interruption)
 trap cleanup_terminal EXIT TERM
+
+# Terminal cleanup - prevents garbage output after SSH disconnects
+_terminal_cleanup() {
+  stty -a 2>/dev/null | grep -q "^-" || printf '\033[?1000l\033[?1002l\033[?1003l' 2>/dev/null
+}
+
+# Add to precmd_functions instead of overriding
+precmd_functions+=(_terminal_cleanup)
 
 # fd/fdfind compatibility (Ubuntu/Debian use fdfind)
 if command -v fdfind >/dev/null 2>&1 && ! command -v fd >/dev/null 2>&1; then
@@ -157,7 +168,13 @@ zstyle ':completion:*' special-dirs false
 if command -v oh-my-posh >/dev/null 2>&1; then
   eval "$(oh-my-posh init zsh --config ~/.config/oh-my-posh/config.json)"
   # Enable transient prompt to minimize previous prompts
+#  enable_poshtransientprompt
 fi
+
+# Set tab title to hostname only
+precmd() {
+  print -Pn "\e]0;%m\a"
+}
 
 # Add spacing before each prompt (disabled)
 # precmd() {
@@ -169,15 +186,8 @@ fi
 #   eval "$(starship init zsh)"
 # fi
 
-# SSH agent with 8-hour timeout
-if [ -f ~/.ssh/id_ed25519 ]; then
-  [ -f ~/.ssh/environment ] && source ~/.ssh/environment
-  if ! ssh-add -l >/dev/null 2>&1; then
-    ssh-agent -t 28800 > ~/.ssh/environment
-    source ~/.ssh/environment
-    ssh-add --apple-use-keychain ~/.ssh/id_ed25519 2>/dev/null
-  fi
-fi
+# Load local customizations
+[ -f ~/.zshrc.local ] && source ~/.zshrc.local
 
 # Set default file permissions
 umask 002
@@ -194,5 +204,3 @@ zsh-bench() {
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
-

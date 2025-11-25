@@ -67,6 +67,26 @@
       "type": "prompt"
     },
     {
+      "alignment": "right",
+      "segments": [
+        {
+          "background": "p:catppuccin-surface-bright",
+          "foreground": "p:catppuccin-white",
+          "style": "diamond",
+          "leading_diamond": "\ue0b6",
+          "trailing_diamond": "\ue0b4",
+          "template": " {{ if not .Error }}{{ .Icon }}{{ .Percentage }}%{{ end }} ",
+          "properties": {
+            "discharging_icon": "\uE234 ",
+            "charging_icon": "\uF1E6 ",
+            "charged_icon": "\uE234 "
+          },
+          "type": "battery"
+        }
+      ],
+      "type": "prompt"
+    },
+    {
       "alignment": "left",
       "newline": true,
       "segments": [
@@ -86,7 +106,6 @@
     "template": "❯ "
   },
   "final_space": false,
-  "console_title_template": "{{ .Shell }} in {{ .Folder }}",
   "disable_notice": true,
   "version": 3
 }
