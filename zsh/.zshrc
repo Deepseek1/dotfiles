@@ -21,7 +21,6 @@ plugins=(
   zsh-autosuggestions
   zsh-syntax-highlighting
   fzf-tab                        # Better tab completion with fzf
-  kimi-cli
 )
 
 # PATH exports
@@ -57,6 +56,8 @@ export EDITOR=nvim
 # Don't override TERM - let Kitty set it to xterm-kitty automatically
 # export TERM=xterm-256color
 export LS_COLORS="$LS_COLORS:ow=01;36:tw=01;34:"
+# Prevent Claude Code from overriding terminal title
+export CLAUDE_CODE_DISABLE_TERMINAL_TITLE=1
 
 # Aliases
 alias c='clear'
@@ -70,7 +71,7 @@ alias zv='znvim'            # Shorter alias for fuzzy nvim
 alias mgmt='ssh unraid -t "docker exec -it --user hugo trixie-mgmt zsh"'
 alias fix-terminal='reset; stty sane; echo -e "\033c"'  # Fix corrupted terminal
 alias mosh="MOSH_TITLE_NOPREFIX=1 mosh"
-#alias claude="/home/hugo/.claude/local/claude"
+alias claude="$HOME/dotfiles/shell-scripts/claude-wrapper.sh"
 
 
 # Terminal cleanup function - prevents garbage output after SSH disconnects
@@ -171,9 +172,9 @@ if command -v oh-my-posh >/dev/null 2>&1; then
 #  enable_poshtransientprompt
 fi
 
-# Set tab title to hostname only
+# Set tab title to hostname: folder
 precmd() {
-  print -Pn "\e]0;%m\a"
+  print -Pn "\e]0;%m: %1~\a"
 }
 
 # Add spacing before each prompt (disabled)
