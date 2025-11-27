@@ -28,7 +28,7 @@ fi
 
 # 1) Install deps
 install_pkgs() {
-  local PKGS_CORE="bash git stow zsh curl wget"
+  local PKGS_CORE="bash git stow zsh curl wget unzip"
   local PKGS_DEV=""
   
   # Determine if we need sudo
@@ -64,9 +64,15 @@ install_pkgs() {
     # Linux distributions
     if [ "$FULL_INSTALL" = 1 ]; then
       # Install ALL the packages we have in Dockerfile
-      if   command -v apt    >/dev/null 2>&1; then 
-        PKGS_DEV="tmux tree gh openssh-client less file ripgrep fd-find build-essential neovim procps htop jq python3 python3-pip fzf bat eza zoxide"
-        $CMD_PREFIX apt update && $CMD_PREFIX apt install -y $PKGS_CORE $PKGS_DEV
+      if   command -v apt    >/dev/null 2>&1; then
+        # Critical packages (guaranteed to be in repos)
+        PKGS_DEV_CRITICAL="tmux tree openssh-client less file build-essential procps htop jq python3 python3-pip fzf"
+        # Optional packages (might not be in older repos - bat, eza, zoxide, gh, ripgrep, fd-find, neovim)
+        PKGS_DEV_OPTIONAL="gh ripgrep fd-find neovim bat eza zoxide"
+
+        $CMD_PREFIX apt update && $CMD_PREFIX apt install -y $PKGS_CORE $PKGS_DEV_CRITICAL
+        # Try optional packages - continue even if some fail
+        $CMD_PREFIX apt install -y $PKGS_DEV_OPTIONAL 2>/dev/null || say "Some optional packages unavailable, continuing..."
         # Fix fd name on Debian/Ubuntu
         [ -f /usr/bin/fdfind ] && $CMD_PREFIX ln -sf /usr/bin/fdfind /usr/local/bin/fd
         
@@ -102,14 +108,14 @@ install_pkgs() {
 # Check if we need to install packages
 need=0
 if [ "$FULL_INSTALL" = 1 ]; then
-  # Check for all the tools we need
-  for c in git stow zsh curl wget tmux nvim tree gh less rg fd htop jq python3 fzf bat eza zoxide; do 
+  # Check for critical tools only (don't require optional packages like bat, eza, zoxide)
+  for c in git stow zsh curl wget unzip tmux tree less htop jq python3 fzf; do
     # Skip tools not needed on macOS (built-in or not checked)
     if [ "$OS" = "macos" ] && [[ "$c" =~ ^(file|less|jq|python3)$ ]]; then continue; fi
     command -v "$c" >/dev/null 2>&1 || need=1
   done
 else
-  for c in git stow zsh curl wget; do 
+  for c in git stow zsh curl wget unzip; do
     command -v "$c" >/dev/null 2>&1 || need=1
   done
 fi

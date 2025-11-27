@@ -53,8 +53,8 @@ source "$ZSH/oh-my-zsh.sh"
 
 # Editor and terminal settings
 export EDITOR=nvim
-# Don't override TERM - let Kitty set it to xterm-kitty automatically
-# export TERM=xterm-256color
+# Set TERM for proper terminal handling (fixes duplicated letters)
+export TERM=xterm-256color
 export LS_COLORS="$LS_COLORS:ow=01;36:tw=01;34:"
 # Prevent Claude Code from overriding terminal title
 export CLAUDE_CODE_DISABLE_TERMINAL_TITLE=1
