@@ -54,6 +54,37 @@ alias la='ls -A'
 alias v='nvim'
 alias zv='znvim'
 alias mosh="MOSH_TITLE_NOPREFIX=1 mosh"
+# Cloudflare Tunnel management
+TUNNEL_ID="ca41a301-707f-48bf-bfc2-5181247d8875"
+CF_CONFIG="/mnt/cache/appdata/cloudflared/config.yml"
+
+tunnel-add() {
+  if grep -q "hostname: $1.denshi.dev" "$CF_CONFIG" 2>/dev/null; then
+    echo "⚠️  $1.denshi.dev already exists in config.yml"
+    return 1
+  fi
+  docker run --rm --user 0:0 -v /mnt/cache/appdata/cloudflared:/root/.cloudflared cloudflare/cloudflared:latest tunnel route dns $TUNNEL_ID "$1.denshi.dev"
+  echo ""
+  echo "✅ DNS added. Paste this into $CF_CONFIG (before the catch-all):"
+  echo ""
+  echo "  - hostname: $1.denshi.dev"
+  echo "    service: https://traefik:443"
+  echo "    originRequest:"
+  echo "      noTLSVerify: true"
+  echo ""
+  echo "Then run: docker restart cloudflared"
+}
+
+tunnel-remove() {
+  echo "To remove $1.denshi.dev:"
+  echo ""
+  echo "1. Remove the entry from $CF_CONFIG"
+  echo "2. Run: docker restart cloudflared"
+  echo "3. Delete the CNAME record in Cloudflare dashboard (DNS → $1.denshi.dev)"
+  echo ""
+  echo "   Or via API:"
+  echo "   curl -X DELETE \"https://api.cloudflare.com/client/v4/zones/ZONE_ID/dns_records/RECORD_ID\""
+}
 
 # Terminal cleanup - prevents garbage output after SSH disconnects
 cleanup_terminal() {
