@@ -71,8 +71,6 @@ alias zv='znvim'            # Shorter alias for fuzzy nvim
 alias mgmt='ssh unraid -t "docker exec -it --user hugo trixie-mgmt zsh"'
 alias fix-terminal='reset; stty sane; echo -e "\033c"'  # Fix corrupted terminal
 alias mosh="MOSH_TITLE_NOPREFIX=1 mosh"
-alias claude="$HOME/dotfiles/shell-scripts/claude-wrapper.sh"
-
 
 # Terminal cleanup function - prevents garbage output after SSH disconnects
 cleanup_terminal() {
@@ -174,7 +172,7 @@ fi
 
 # Set tab title to hostname: folder
 precmd() {
-  print -Pn "\e]0;%m: %1~\a"
+    print -Pn "\e]0;%m: %1~\a"
 }
 
 # Add spacing before each prompt (disabled)
