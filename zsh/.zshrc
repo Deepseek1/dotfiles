@@ -3,10 +3,8 @@ DISABLE_AUTO_TITLE="true"
 
 # Core oh-my-zsh setup
 export ZSH="$HOME/.oh-my-zsh"
-#ZSH_THEME="robbyrussell"
-# /usr/local/bin/motd-simple.sh
 
-# Plugins (keeping all for better functionality)
+# Plugins
 plugins=(
   git
   z                              # Jump to frequent directories
@@ -24,9 +22,7 @@ plugins=(
 )
 
 # PATH exports
-export PATH="$HOME/.local/bin:$HOME/.bun/bin:$PATH"
-export BUN_INSTALL="$HOME/.bun"
-
+export PATH="$HOME/.local/bin:$PATH"
 
 # FZF setup - auto-detect installation path
 if [ -d "/opt/homebrew/opt/fzf" ]; then
@@ -39,57 +35,32 @@ elif [ -d "/usr/share/doc/fzf" ]; then
   export FZF_BASE="/usr/share/doc/fzf"     # Some other Linux distros
 fi
 
-# Source private environment variables (for API keys, etc.)
-# WARNING: Only source if you trust the contents and need these vars in all shells
-# Consider using direnv or manual sourcing for project-specific variables
+# Source private environment variables (API keys, etc.)
 [ -f ~/.env ] && [ -r ~/.env ] && source ~/.env
 
-# CORRET TAB NAMES IN KITTY
 # Source oh-my-zsh
 source "$ZSH/oh-my-zsh.sh"
 
-# Nuclear option: completely disable oh-my-zsh title function (disabled)
-# unset -f title 2>/dev/null || true
-
 # Editor and terminal settings
 export EDITOR=nvim
-# Set TERM for proper terminal handling (fixes duplicated letters)
 export TERM=xterm-256color
 export LS_COLORS="$LS_COLORS:ow=01;36:tw=01;34:"
-# Prevent Claude Code from overriding terminal title
 export CLAUDE_CODE_DISABLE_TERMINAL_TITLE=1
 
 # Aliases
 alias c='clear'
 alias ll='ls -lah --color=auto'
 alias la='ls -A'
-alias gpt='chatgpt'
-alias ccusage='bunx --bun ccusage'
-alias dotpush='cd ~/dotfiles && git add -u && git commit -m "Update configs" && git push && cd -'
-alias v='nvim'              # Use neovim instead of vim
-alias zv='znvim'            # Shorter alias for fuzzy nvim
-alias mgmt='ssh unraid -t "docker exec -it --user hugo trixie-mgmt zsh"'
-alias fix-terminal='reset; stty sane; echo -e "\033c"'  # Fix corrupted terminal
+alias v='nvim'
+alias zv='znvim'
 alias mosh="MOSH_TITLE_NOPREFIX=1 mosh"
 
-# Terminal cleanup function - prevents garbage output after SSH disconnects
+# Terminal cleanup - prevents garbage output after SSH disconnects
 cleanup_terminal() {
-  # Disable mouse reporting that can get stuck after SSH disconnections
   printf '\033[?1000l\033[?1002l\033[?1003l\033[?1006l'
-  # Restore normal terminal settings
   stty sane 2>/dev/null || true
 }
-
-# Auto-cleanup on shell exit (but not on Ctrl+C interruption)
 trap cleanup_terminal EXIT TERM
-
-# Terminal cleanup - prevents garbage output after SSH disconnects
-_terminal_cleanup() {
-  stty -a 2>/dev/null | grep -q "^-" || printf '\033[?1000l\033[?1002l\033[?1003l' 2>/dev/null
-}
-
-# Add to precmd_functions instead of overriding
-precmd_functions+=(_terminal_cleanup)
 
 # fd/fdfind compatibility (Ubuntu/Debian use fdfind)
 if command -v fdfind >/dev/null 2>&1 && ! command -v fd >/dev/null 2>&1; then
@@ -98,17 +69,13 @@ fi
 
 # Modern tool aliases (if available)
 if command -v eza >/dev/null 2>&1; then
-  # Use ~/.config/eza instead of ~/Library/Application Support/eza on macOS
   export EZA_CONFIG_DIR="$HOME/.config/eza"
-  # Colorful eza setup
-  export EXA_COLORS="di=1;36:ln=1;35:so=1;32:pi=1;33:ex=1;31:bd=1;34:cd=1;33:su=1;41:sg=1;46:tw=1;42:ow=1;43"
   alias ls='eza --icons --color=always --group-directories-first'
   alias ll='eza -l --icons --color=always --group-directories-first --git'
   alias la='eza -la --icons --color=always --group-directories-first --git'
   alias lt='eza --tree --icons --color=always --level=2'
 fi
 command -v bat >/dev/null 2>&1 && export BAT_THEME="Catppuccin-mocha" && alias cat='bat'
-# Initialize zoxide normally (lazy loading was causing issues)
 if command -v zoxide >/dev/null 2>&1; then
   eval "$(zoxide init zsh)"
 fi
@@ -121,7 +88,6 @@ setopt HIST_IGNORE_ALL_DUPS HIST_IGNORE_DUPS HIST_REDUCE_BLANKS SHARE_HISTORY EX
 
 # Completion caching
 autoload -Uz compinit
-# Use -C for faster startup (skips security check) - only safe if you trust all completion files
 compinit -C
 
 # FZF configuration
@@ -130,76 +96,32 @@ export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border'
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
-# Keybindings
-# History substring search
+# Keybindings - history substring search
 bindkey -M emacs '^[[A' history-substring-search-up
 bindkey -M emacs '^[[B' history-substring-search-down
 
-# Note: ESC ESC for sudo is provided by oh-my-zsh sudo plugin
-
-# Load custom functions and utilities
-# - rm-safety.sh: Safe rm command with trash functionality
-# - dotfiles-check.zsh: Git status warnings for uncommitted dotfiles
-# - fuzzy-listing.zsh: Smart directory listing (zls, zll, zla) 
-# - fuzzy-nvim.zsh: Intelligent file finder and editor (znvim)
+# Load custom functions
 [ -f ~/.rm-safety.sh ] && source ~/.rm-safety.sh
-
-# Load shell functions
 source "$HOME/dotfiles/shell/functions/dotfiles-check.zsh"
-source "$HOME/dotfiles/shell/functions/fuzzy-listing.zsh" 
+source "$HOME/dotfiles/shell/functions/fuzzy-listing.zsh"
 source "$HOME/dotfiles/shell/functions/fuzzy-nvim.zsh"
-source "$HOME/dotfiles/shell/functions/index-config.zsh"
 
-# Add the dotfiles check as a precmd hook (disabled for performance)
-# autoload -Uz add-zsh-hook
-# add-zsh-hook precmd check_dotfiles_changes
-
-# Bun completions
-[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
-
-# Enable tab completion for hidden files/directories
+# Completion settings
 setopt globdots
-
-# Hide . and .. from tab completion
 zstyle ':completion:*' special-dirs false
 
-# Initialize Oh-My-Posh with transient prompt for clean history
+# Oh-My-Posh prompt
 if command -v oh-my-posh >/dev/null 2>&1; then
   eval "$(oh-my-posh init zsh --config ~/.config/oh-my-posh/config.json)"
-  # Enable transient prompt to minimize previous prompts
-#  enable_poshtransientprompt
 fi
 
 # Set tab title to hostname: folder
 precmd() {
-    print -Pn "\e]0;%m: %1~\a"
+  print -Pn "\e]0;%m: %1~\a"
 }
-
-# Add spacing before each prompt (disabled)
-# precmd() {
-#   echo
-# }
-
-# Initialize Starship prompt
-# if command -v starship >/dev/null 2>&1; then
-#   eval "$(starship init zsh)"
-# fi
 
 # Load local customizations
 [ -f ~/.zshrc.local ] && source ~/.zshrc.local
 
-# Set default file permissions
+# Default file permissions
 umask 002
-
-# Benchmark function to test shell startup time
-zsh-bench() {
-  echo "Testing shell startup time (10 runs)..."
-  for i in {1..10}; do
-    time zsh -i -c exit
-  done
-}
-
-
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
