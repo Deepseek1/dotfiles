@@ -1,12 +1,22 @@
 {
+  "permissions": {
+    "allow": [
+      "WebFetch",
+      "Read",
+      "WebSearch",
+      "Bash(curl:*)"
+    ],
+    "deny": [
+      "Bash(rm:*)",
+      "Bash(/bin/rm:*)",
+      "Bash(rmdir:*)",
+      "Bash(unlink:*)"
+    ]
+  },
   "statusLine": {
     "type": "command",
     "command": "bash ~/.claude/statusline-command.sh",
     "padding": 0
   },
-  "alwaysThinkingEnabled": true,
-  "attribution": {
-    "commit": "",
-    "pr": ""
-  }
+  "alwaysThinkingEnabled": true
 }
