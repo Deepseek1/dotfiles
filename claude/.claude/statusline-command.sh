@@ -5,15 +5,7 @@ BAR_STYLE="lines"
 # System overhead (prompt + tools + agents) - adjust if needed
 SYSTEM_OVERHEAD_K=19
 
-# Cross-platform timeout: use gtimeout on macOS, timeout on Linux
-if command -v gtimeout &>/dev/null; then
-    input=$(gtimeout 1 cat || echo '{}')
-elif command -v timeout &>/dev/null; then
-    input=$(timeout 1 cat || echo '{}')
-else
-    # Fallback: read with shell timeout
-    input=$(cat || echo '{}')
-fi
+input=$(cat || echo '{}')
 cwd=$(echo "$input" | jq -r '.workspace.current_dir')
 model=$(echo "$input" | jq -r '.model.display_name // "Claude"')
 context_pct=$(echo "$input" | jq -r --arg overhead "$SYSTEM_OVERHEAD_K" 'if .context_window.context_window_size > 0 then (100 * ((.context_window.total_input_tokens) / 1000 + ($overhead | tonumber)) / (.context_window.context_window_size / 1000) | floor) else 0 end')
