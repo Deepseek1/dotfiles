@@ -1,6 +1,6 @@
 #!/bin/bash
 # Bar style: "lines" | "blocks" | "smooth"
-BAR_STYLE="lines"
+BAR_STYLE="blocks"
 
 # System overhead (prompt + tools + agents) - adjust if needed
 SYSTEM_OVERHEAD_K=19
