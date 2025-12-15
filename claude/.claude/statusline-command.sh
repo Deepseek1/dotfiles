@@ -2,17 +2,39 @@
 # Bar style: "lines" | "blocks" | "smooth"
 BAR_STYLE="blocks"
 
-# System overhead (prompt + tools + agents) - adjust if needed
-SYSTEM_OVERHEAD_K=19
-
 input=$(cat || echo '{}')
 cwd=$(echo "$input" | jq -r '.workspace.current_dir')
 model=$(echo "$input" | jq -r '.model.display_name // "Claude"')
-context_pct=$(echo "$input" | jq -r --arg overhead "$SYSTEM_OVERHEAD_K" 'if .context_window.context_window_size > 0 then (100 * ((.context_window.total_input_tokens) / 1000 + ($overhead | tonumber)) / (.context_window.context_window_size / 1000) | floor) else 0 end')
-context_used=$(echo "$input" | jq -r --arg overhead "$SYSTEM_OVERHEAD_K" '(((.context_window.total_input_tokens) / 1000 | floor) + ($overhead | tonumber))')
-context_total=$(echo "$input" | jq -r '(.context_window.context_window_size / 1000 | floor)')
+context_total=$(echo "$input" | jq -r '((.context_window.context_window_size // 0) / 1000 | floor)')
+
+# Get actual context from transcript's cache_read_input_tokens (most accurate)
+# Filter out sidechain messages (subagent calls) like ccstatusline does
+transcript_path=$(echo "$input" | jq -r '.transcript_path // empty')
+if [ -n "$transcript_path" ] && [ -f "$transcript_path" ]; then
+    # Get last main-chain message with usage data (isSidechain:false)
+    last_line=$(grep '"isSidechain":false' "$transcript_path" | grep '"usage"' | tail -1)
+    if [ -n "$last_line" ]; then
+        cache_read=$(echo "$last_line" | grep -oP '"cache_read_input_tokens":\K[0-9]+' | head -1 || echo "0")
+        cache_create=$(echo "$last_line" | grep -oP '"cache_creation_input_tokens":\K[0-9]+' | head -1 || echo "0")
+        input_tok=$(echo "$last_line" | grep -oP '"input_tokens":\K[0-9]+' | head -1 || echo "0")
+        [ -z "$cache_read" ] && cache_read=0
+        [ -z "$cache_create" ] && cache_create=0
+        [ -z "$input_tok" ] && input_tok=0
+        context_tokens=$((cache_read + cache_create + input_tok))
+        context_used=$((context_tokens / 1000))
+        context_size=$(echo "$input" | jq -r '.context_window.context_window_size // 200000')
+        context_pct=$((100 * context_tokens / context_size))
+    else
+        context_used=0
+        context_pct=0
+    fi
+else
+    context_used=0
+    context_pct=0
+fi
 cost=$(echo "$input" | jq -r '.cost.total_cost_usd // 0 | . * 100 | floor | . / 100')
 duration_ms=$(echo "$input" | jq -r '.cost.total_duration_ms // 0')
+[[ ! "$duration_ms" =~ ^[0-9]+$ ]] && duration_ms=0
 duration_min=$((duration_ms / 60000))
 
 git_info=""
@@ -66,6 +88,7 @@ printf "\033[38;2;136;192;208m%s\033[0m" "$model"
 # Context bar
 if [ "$context_pct" != "0" ] && [ "$context_pct" != "null" ]; then
     pct_int=${context_pct%.*}
+    [[ ! "$pct_int" =~ ^[0-9]+$ ]] && pct_int=0
     if [ "$pct_int" -lt 50 ]; then
         bar_color="166;227;161"  # green
     elif [ "$pct_int" -lt 80 ]; then
