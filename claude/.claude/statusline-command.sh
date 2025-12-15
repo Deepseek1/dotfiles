@@ -7,11 +7,9 @@ cwd=$(echo "$input" | jq -r '.workspace.current_dir')
 model=$(echo "$input" | jq -r '.model.display_name // "Claude"')
 context_total=$(echo "$input" | jq -r '((.context_window.context_window_size // 0) / 1000 | floor)')
 
-# Get actual context from transcript's cache_read_input_tokens (most accurate)
-# Filter out sidechain messages (subagent calls) like ccstatusline does
+# Get actual context from transcript's cache tokens (workaround for broken docs method)
 transcript_path=$(echo "$input" | jq -r '.transcript_path // empty')
 if [ -n "$transcript_path" ] && [ -f "$transcript_path" ]; then
-    # Get last main-chain message with usage data (isSidechain:false)
     last_line=$(grep '"isSidechain":false' "$transcript_path" | grep '"usage"' | tail -1)
     if [ -n "$last_line" ]; then
         cache_read=$(echo "$last_line" | grep -oP '"cache_read_input_tokens":\K[0-9]+' | head -1 || echo "0")
