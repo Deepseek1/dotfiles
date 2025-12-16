@@ -53,7 +53,7 @@ alias ll='ls -lah --color=auto'
 alias la='ls -A'
 alias v='nvim'
 alias zv='znvim'
-alias mosh="MOSH_TITLE_NOPREFIX=1 mosh"
+alias mosh="MOSH_TITLE_NOPREFIX=1 mosh --predict=never"
 # Cloudflare Tunnel management
 TUNNEL_ID="ca41a301-707f-48bf-bfc2-5181247d8875"
 CF_CONFIG="/mnt/cache/appdata/cloudflared/config.yml"
