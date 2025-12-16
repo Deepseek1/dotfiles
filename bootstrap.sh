@@ -217,21 +217,6 @@ if command -v bat >/dev/null 2>&1 && [ -d "$HOME/.config/bat/themes" ]; then
   bat cache --build >/dev/null 2>&1 || true
 fi
 
-# 7.5) Install NVM (Node Version Manager)
-if [ "$FULL_INSTALL" = 1 ] && [ ! -d "$HOME/.nvm" ]; then
-  say "Installing NVM (Node Version Manager)..."
-  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
-  
-  # Source NVM immediately for current session
-  export NVM_DIR="$HOME/.nvm"
-  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-  
-  # Install latest LTS Node by default
-  say "Installing Node.js LTS..."
-  nvm install --lts
-  nvm use --lts
-fi
-
 # 8) Make zsh the default shell - skip if root or in container
 if [ "$SET_DEFAULT_SHELL" = 1 ] && [ "$EUID" -ne 0 ] && [ "$SHELL" != "$(command -v zsh)" ]; then
   if [ "$OS" = "macos" ]; then
