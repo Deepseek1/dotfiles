@@ -132,7 +132,7 @@ bindkey -M emacs '^[[A' history-substring-search-up
 bindkey -M emacs '^[[B' history-substring-search-down
 
 # Load custom functions
-[ -f ~/.rm-safety.sh ] && source ~/.rm-safety.sh
+[ -f ~/.local/bin/rm-safety ] && source ~/.local/bin/rm-safety
 source "$HOME/dotfiles/shell/functions/dotfiles-check.zsh"
 source "$HOME/dotfiles/shell/functions/fuzzy-listing.zsh"
 source "$HOME/dotfiles/shell/functions/fuzzy-nvim.zsh"
