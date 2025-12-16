@@ -29,14 +29,16 @@
           "foreground": "p:catppuccin-white",
           "style": "powerline",
           "powerline_symbol": "\ue0b0",
-          "template": " {{ .UserName }}@{{ .HostName }} ",
+          "template": " {{ .HostName }} ",
           "type": "session"
         },
         {
           "background": "p:catppuccin-blue",
           "foreground": "p:catppuccin-bg",
           "properties": {
-            "style": "full"
+            "style": "agnoster_short",
+            "folder_icon": "…",
+            "home_icon": "~"
           },
           "style": "diamond",
           "trailing_diamond": "\ue0b4",
@@ -91,10 +93,16 @@
       "newline": true,
       "segments": [
         {
-          "foreground": "p:catppuccin-blue",
+          "foreground": "p:catppuccin-green",
+          "foreground_templates": [
+            "{{ if gt .Code 0 }}#f38ba8{{ end }}"
+          ],
+          "properties": {
+            "always_enabled": true
+          },
           "style": "plain",
           "template": "❯ ",
-          "type": "text"
+          "type": "exit"
         }
       ],
       "type": "prompt"
