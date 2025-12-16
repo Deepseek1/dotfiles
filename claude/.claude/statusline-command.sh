@@ -7,28 +7,42 @@ cwd=$(echo "$input" | jq -r '.workspace.current_dir')
 model=$(echo "$input" | jq -r '.model.display_name // "Claude"')
 context_total=$(echo "$input" | jq -r '((.context_window.context_window_size // 0) / 1000 | floor)')
 
-# Get actual context from transcript's cache tokens (workaround for broken docs method)
-transcript_path=$(echo "$input" | jq -r '.transcript_path // empty')
-if [ -n "$transcript_path" ] && [ -f "$transcript_path" ]; then
-    last_line=$(grep '"isSidechain":false' "$transcript_path" | grep '"usage"' | tail -1)
-    if [ -n "$last_line" ]; then
-        cache_read=$(echo "$last_line" | grep -oP '"cache_read_input_tokens":\K[0-9]+' | head -1 || echo "0")
-        cache_create=$(echo "$last_line" | grep -oP '"cache_creation_input_tokens":\K[0-9]+' | head -1 || echo "0")
-        input_tok=$(echo "$last_line" | grep -oP '"input_tokens":\K[0-9]+' | head -1 || echo "0")
-        [ -z "$cache_read" ] && cache_read=0
-        [ -z "$cache_create" ] && cache_create=0
-        [ -z "$input_tok" ] && input_tok=0
-        context_tokens=$((cache_read + cache_create + input_tok))
-        context_used=$((context_tokens / 1000))
-        context_size=$(echo "$input" | jq -r '.context_window.context_window_size // 200000')
-        context_pct=$((100 * context_tokens / context_size))
+# Use 2.0.70+ context_window.current_usage (most accurate)
+current_usage=$(echo "$input" | jq -r '.context_window.current_usage // empty')
+if [ -n "$current_usage" ] && [ "$current_usage" != "null" ]; then
+    # Sum all token fields from current_usage
+    context_tokens=$(echo "$input" | jq -r '
+        .context_window.current_usage |
+        ((.input_tokens // 0) + (.output_tokens // 0) +
+         (.cache_creation_input_tokens // 0) + (.cache_read_input_tokens // 0))
+    ')
+    context_used=$((context_tokens / 1000))
+    context_size=$(echo "$input" | jq -r '.context_window.context_window_size // 200000')
+    context_pct=$((100 * context_tokens / context_size))
+else
+    # Fallback: Get actual context from transcript's cache_read_input_tokens
+    transcript_path=$(echo "$input" | jq -r '.transcript_path // empty')
+    if [ -n "$transcript_path" ] && [ -f "$transcript_path" ]; then
+        last_line=$(grep '"isSidechain":false' "$transcript_path" | grep '"usage"' | tail -1)
+        if [ -n "$last_line" ]; then
+            cache_read=$(echo "$last_line" | grep -oP '"cache_read_input_tokens":\K[0-9]+' | head -1 || echo "0")
+            cache_create=$(echo "$last_line" | grep -oP '"cache_creation_input_tokens":\K[0-9]+' | head -1 || echo "0")
+            input_tok=$(echo "$last_line" | grep -oP '"input_tokens":\K[0-9]+' | head -1 || echo "0")
+            [ -z "$cache_read" ] && cache_read=0
+            [ -z "$cache_create" ] && cache_create=0
+            [ -z "$input_tok" ] && input_tok=0
+            context_tokens=$((cache_read + cache_create + input_tok))
+            context_used=$((context_tokens / 1000))
+            context_size=$(echo "$input" | jq -r '.context_window.context_window_size // 200000')
+            context_pct=$((100 * context_tokens / context_size))
+        else
+            context_used=0
+            context_pct=0
+        fi
     else
         context_used=0
         context_pct=0
     fi
-else
-    context_used=0
-    context_pct=0
 fi
 cost=$(echo "$input" | jq -r '.cost.total_cost_usd // 0 | . * 100 | floor | . / 100')
 duration_ms=$(echo "$input" | jq -r '.cost.total_duration_ms // 0')
